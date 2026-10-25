@@ -1,0 +1,9 @@
+include LICENSE README.md pyproject.toml
+recursive-include docs *.rst *.md *.py *.png
+prune docs/_build
+recursive-include examples *.py
+recursive-include tests *.py
+recursive-include data *.npz *.json *.h5 *.xml *.csv *.log *.md LICENSE
+recursive-include simulations *.m *.py *.md *.txt Dockerfile
+prune simulations/work
+recursive-include preview *.png *.json

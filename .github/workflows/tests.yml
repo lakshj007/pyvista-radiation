@@ -1,0 +1,49 @@
+name: Validate package and docs
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.12']
+    env:
+      PYVISTA_OFF_SCREEN: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e '.[preview,test]'
+      - run: pip install ruff
+      - run: ruff check src tests examples
+      - run: pytest -q
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install build
+      - run: python -m build
+      - run: pip install dist/*.whl
+      - name: Load bundled data outside checkout without optional dependencies
+        working-directory: /tmp
+        run: python -c "from pyvista_radiation import load_patch; assert load_patch().e_theta.shape == (3,37,72)"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[docs]'
+      - run: sphinx-build -W --keep-going -b html docs docs/_build/html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/_build/html

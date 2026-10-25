@@ -1,0 +1,3 @@
+# Preserve byte-for-byte solver transcripts and generated offline viewer code.
+data/**/*.log -whitespace
+preview/*.html -whitespace

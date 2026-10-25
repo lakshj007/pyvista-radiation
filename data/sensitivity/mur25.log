@@ -1,0 +1,36 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 56x57x53 --> 169176 FDTD cells 
+FDTD timestep is: 7.51786e-13 s; Nyquist rate: 221 timesteps @3.00943e+09 Hz
+Excitation signal length is: 3811 timesteps (2.86506e-09s)
+Max. number of timesteps: 30000 ( --> 7.87195 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:         3410 || Speed:  143.7 MC/s (1.177e-03 s/TS) || Energy: ~5.17e-13 (- 2.98dB)
+[@        8s] Timestep:         6985 || Speed:  150.9 MC/s (1.121e-03 s/TS) || Energy: ~7.24e-14 (-11.52dB)
+[@       12s] Timestep:        10670 || Speed:  154.9 MC/s (1.092e-03 s/TS) || Energy: ~4.62e-16 (-33.47dB)
+[@       16s] Timestep:        14135 || Speed:  146.0 MC/s (1.159e-03 s/TS) || Energy: ~7.35e-16 (-31.45dB)
+[@       20s] Timestep:        17600 || Speed:  146.4 MC/s (1.155e-03 s/TS) || Energy: ~1.53e-16 (-38.27dB)
+[@       24s] Timestep:        21010 || Speed:  143.8 MC/s (1.176e-03 s/TS) || Energy: ~2.70e-18 (-55.80dB)
+Time for 21010 iterations with 169176.00 cells : 24.07 sec
+Speed: 147.65 MCells/s 
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+error: ignoring const execution_exception& while preparing to exit
