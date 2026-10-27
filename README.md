@@ -29,15 +29,19 @@ is also retained and can be opened without a Python server.
 
 ## Terrain-aware coverage
 
-The viewer now includes approximate signal coverage over synthetic ridges and
-mountains. Terrain changes calculated path loss through obstruction and
+The viewer includes approximate signal coverage over synthetic ridges,
+mountains, rugged ranges, winding valleys, low-rise city blocks and downtown
+towers. Choose an environment and a west/center/east transmitter position.
+Terrain and building roofs change calculated path loss through obstruction and
 single-dominant-edge diffraction. Change transmitter height, orientation,
 frequency or power and compare against the obstruction-loss-disabled baseline.
 The map shows received power, additional terrain loss or geometric sight lines.
 
 The landscape is illustrative, and transmit/receive gains are explicit
 assumptions. This first model omits multiple-edge interactions, reflections,
-through-rock penetration, buildings and foliage; it is not measurement validated.
+through-rock/wall penetration, street-corner propagation and foliage; it is not
+measurement validated. City colors show outdoor ground reception, with building
+footprints excluded; pale boxes show the buildings.
 See [terrain model, limits and real elevation-grid input](docs/terrain.rst).
 Local metric terrain NPZ files can be supplied with `pyvista-radiation --terrain terrain.npz`.
 

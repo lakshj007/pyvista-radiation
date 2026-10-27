@@ -1,15 +1,25 @@
 """Saved antenna far fields, validated geometry and interactive PyVista views."""
 
+from .environments import synthetic_environment
 from .mesh import difference_mesh, radiation_mesh
 from .metrics import beamwidth, half_power_beamwidth, pattern_difference
 from .model import RadiationData, load, save
 from .numerics import amplitude_db, directivity, power_db, principal_cut, spherical_directions
 from .plotting import RadiationViewer, compare_patterns, plot_pattern
 from .samples import load_patch
-from .terrain import TerrainGrid, coverage_map, load_terrain, save_terrain, synthetic_terrain
+from .terrain import (
+    Building,
+    TerrainGrid,
+    coverage_map,
+    load_terrain,
+    save_terrain,
+    synthetic_terrain,
+)
 
 __version__ = "0.2.0"
 __all__ = [
+    "Building",
+    "synthetic_environment",
     "TerrainGrid",
     "coverage_map",
     "load_terrain",

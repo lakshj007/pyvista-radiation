@@ -4,7 +4,48 @@ Terrain-aware coverage prototype
 The browser viewer includes a terrain section that estimates actual extra
 propagation loss, rather than placing decorative hills around the far-field
 surface. It uses synthetic flat, ridge and mountain landscapes over a local
-6 km by 4.5 km area. These are illustrative grids, not geographic measurements.
+6 km by 4.5 km area, including rugged ranges and a winding valley. Low-rise
+city blocks and downtown towers use a smaller 1.6 km by 1.2 km area. These are
+illustrative scenes, not geographic measurements.
+
+City environments
+-----------------
+
+Choose **City · low-rise blocks** or **City · downtown towers** in the Environment
+selector. Both contain 80 reproducible building boxes and intersecting streets.
+Choose a west, center or east transmitter position, adjust its height, and
+calculate again. Heights remain relative to local ground, not roof level.
+Moving the transmitter does not automatically turn its antenna; adjust heading
+under More settings when comparing opposite ends of the scene.
+
+Pale building boxes are obstacles. Colors on the ground show estimated outdoor
+reception. Building footprints are excluded from reception statistics and saved
+results mark them with ``building_mask``; no indoor values or rooftop receivers
+are invented. Building entry/exit intersections are inserted into each path
+profile even when a footprint is narrower than the terrain sampling interval.
+Roof heights contribute to obstruction, geometric sight lines and the dominant
+diffraction edge. The inspected profile separates ground from the roof surface.
+Turning obstruction loss off retains buildings and receiver masks for comparison.
+
+This is **not a validated urban propagation model**. Only the vertical path
+over roofs is approximated; side-edge diffraction, street-corner propagation,
+reflections between facades, materials, indoor reception and multipath are
+omitted. Dense city results can therefore differ substantially from real signals.
+The categories and additional effects of urban propagation are discussed in
+`ITU-R P.1411 <https://www.itu.int/rec/R-REC-P.1411-13-202509-I/en>`_; this prototype
+does not implement that recommendation.
+
+The numerical API accepts custom boxes with absolute local base/roof elevations::
+
+   from pyvista_radiation import Building, synthetic_environment, coverage_map
+   terrain, buildings = synthetic_environment('downtown')
+   result = coverage_map(terrain, 2.4e9, buildings=buildings, tx_xy=(0, 0))
+   result.save('city_coverage.npz')
+
+The saved coverage archive includes the building geometry in its JSON metadata,
+the footprint mask, and the ground coordinate/elevation arrays. The terrain-only
+NPZ loader still accepts only ground elevations; city presets are selected in
+the viewer. No live maps or real city building data are downloaded.
 
 Select a landscape, frequency, transmitter/receiver heights, transmit power,
 assumed peak gain and antenna orientation, then click **Calculate coverage**.
@@ -52,7 +93,7 @@ reference uses the straight slant distance. Only the strongest sampled obstacle
 is represented. This is **not** the complete ITU general-terrain/delta-Bullington
 method, nor a full-wave terrain simulation. It may underestimate multiple-ridge
 or broad rounded-obstacle losses. There is no modeled penetration through solid
-rock, ground reflection, multipath, buildings, foliage, atmospheric absorption,
+rock or walls, ground reflection, multipath, foliage, atmospheric absorption,
 polarization mismatch or fading. It is not measurement validated and should not
 be treated as a deployment-grade coverage prediction.
 

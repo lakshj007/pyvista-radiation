@@ -4,10 +4,12 @@ Only NumPy is required. This is not a complete ITU terrain prediction method:
 free-space loss plus the P.526 single-knife-edge approximation at the most
 significant sampled obstacle. It omits multiple-edge interactions, reflections,
 rock/building penetration, foliage, fading, atmospheric absorption and noise.
+Optional building boxes contribute roof obstruction; this is not an urban
+ray tracer or a street-canyon multipath model.
 """
 
 import json
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
@@ -15,6 +17,42 @@ import numpy as np
 from .numerics import directivity, frequency_index, require_full_sphere
 
 C0 = 299792458.0
+
+
+@dataclass(frozen=True)
+class Building:
+    """Axis-aligned opaque box in local metres, with absolute base/roof elevations."""
+
+    xmin: float
+    xmax: float
+    ymin: float
+    ymax: float
+    base_m: float
+    roof_m: float
+
+    def __post_init__(self):
+        if not np.isfinite(list(asdict(self).values())).all():
+            raise ValueError("building coordinates must be finite")
+        if self.xmin >= self.xmax or self.ymin >= self.ymax or self.base_m >= self.roof_m:
+            raise ValueError("building bounds and base/roof must increase")
+
+    def contains(self, x, y):
+        return (x >= self.xmin) & (x <= self.xmax) & (y >= self.ymin) & (y <= self.ymax)
+
+    def interval(self, start, end):
+        """Exact segment/footprint intersection as fractions of horizontal length."""
+        lo, hi = 0.0, 1.0
+        for a, b, lower, upper in zip(start, end, (self.xmin, self.ymin), (self.xmax, self.ymax)):
+            delta = b - a
+            if delta == 0:
+                if not lower <= a <= upper:
+                    return None
+            else:
+                u, v = sorted(((lower - a) / delta, (upper - a) / delta))
+                lo, hi = max(lo, u), min(hi, v)
+                if lo > hi:
+                    return None
+        return lo, hi
 
 
 def _positive(value, name):
@@ -101,8 +139,19 @@ def synthetic_terrain(kind="ridge", nx=81, ny=61):
             + 125 * np.exp(-(((xx - 390) / 140) ** 2) - ((yy + 260) / 220) ** 2)
             + 45 * np.exp(-(((xx + 520) / 220) ** 2) - ((yy - 400) / 170) ** 2)
         )
+    elif kind == "valley":
+        center = 200 * np.sin(xx / 400)
+        z = 290 * (1 - np.exp(-((yy - center) / 270) ** 2))
+        z += 35 * (1 + np.sin(xx / 170)) * (1 - np.exp(-((yy - center) / 350) ** 2))
+    elif kind == "rugged":
+        rng = np.random.default_rng(42)
+        z = np.zeros_like(xx)
+        for _ in range(20):
+            cx, cy = rng.uniform(-900, 900), rng.uniform(-650, 650)
+            wx, wy = rng.uniform(90, 230, 2)
+            z += rng.uniform(50, 160) * np.exp(-((xx - cx) / wx) ** 2 - ((yy - cy) / wy) ** 2)
     else:
-        raise ValueError("terrain kind must be flat, ridge or mountains")
+        raise ValueError("terrain kind must be flat, ridge, mountains, valley or rugged")
     return TerrainGrid(x, y, z, f"Synthetic {kind} landscape (illustrative; metres)")
 
 
@@ -175,6 +224,7 @@ class PathProfile:
     diffraction_db: float
     line_of_sight: bool
     diffraction_angle_deg: float
+    obstruction_m: np.ndarray
 
 
 def path_profile(
@@ -185,6 +235,7 @@ def path_profile(
     *,
     sample_spacing_m=None,
     effective_earth_radius_m=8500000.0,
+    buildings=(),
 ):
     """Trace a sampled vertical profile and evaluate its dominant knife edge.
 
@@ -200,6 +251,9 @@ def path_profile(
         raise ValueError("tx and rx must be finite xyz points")
     if tx[2] <= terrain.sample(*tx[:2]) or rx[2] <= terrain.sample(*rx[:2]):
         raise ValueError("antennas must be above local ground")
+    for building in buildings:
+        if any(building.contains(*p[:2]) and p[2] <= building.roof_m for p in (tx, rx)):
+            raise ValueError("antennas must be outdoors or above building roofs")
     total = np.linalg.norm(rx[:2] - tx[:2])
     if total <= 0:
         raise ValueError("profile endpoints must have distinct horizontal positions")
@@ -213,8 +267,26 @@ def path_profile(
     if segments > 8192:
         raise ValueError("profile exceeds 8192 segments; shorten path or increase sample spacing")
     f = np.linspace(0, 1, segments + 1)
+    crossings = []
+    for building in buildings:
+        interval = building.interval(tx[:2], rx[:2])
+        if interval is not None:
+            lo, hi = interval
+            # Roof entry/exit cannot be skipped even when the building is narrower
+            # than the terrain sampling interval. Include neighboring street points.
+            crossings.extend([max(0, lo - 1e-8), lo, (lo + hi) / 2, hi, min(1, hi + 1e-8)])
+    if crossings:
+        f = np.unique(np.r_[f, crossings])
+    if len(f) > 8193:
+        raise ValueError("profile exceeds 8192 segments including building crossings")
     xy = tx[:2] + f[:, None] * (rx[:2] - tx[:2])
     ground = terrain.sample(xy[:, 0], xy[:, 1])
+    obstruction = ground.copy()
+    for building in buildings:
+        interval = building.interval(tx[:2], rx[:2])
+        if interval is not None:
+            mask = (f >= interval[0]) & (f <= interval[1])
+            obstruction[mask] = np.maximum(obstruction[mask], building.roof_m)
     distance = f * total
     bulge = (
         np.zeros_like(f)
@@ -223,7 +295,7 @@ def path_profile(
         * (total - distance)
         / (2 * _positive(effective_earth_radius_m, "effective_earth_radius_m"))
     )
-    effective = ground + bulge
+    effective = obstruction + bulge
     line = tx[2] + f * (rx[2] - tx[2])
     h = effective[1:-1] - line[1:-1]
     v = h * np.sqrt(2 * total / ((C0 / frequency_hz) * distance[1:-1] * (total - distance[1:-1])))
@@ -241,6 +313,7 @@ def path_profile(
         float(knife_edge_loss(v[k - 1])),
         bool(np.all(h <= 0)),
         float(np.rad2deg(angle)),
+        obstruction,
     )
 
 
@@ -302,6 +375,7 @@ class CoverageResult:
     x_m: np.ndarray
     y_m: np.ndarray
     ground_elevation_m: np.ndarray
+    building_mask: np.ndarray
 
     def __post_init__(self):
         for key, value in vars(self).items():
@@ -336,6 +410,7 @@ def coverage_map(
     min_distance_m=10,
     sample_spacing_m=None,
     effective_earth_radius_m=8500000.0,
+    buildings=(),
 ):
     """Estimate received power on a terrain grid, using a stated assumed link budget.
 
@@ -375,6 +450,11 @@ def coverage_map(
     if tx_xy.shape != (2,):
         raise ValueError("tx_xy must be a local x,y pair")
     tx = np.r_[tx_xy, float(terrain.sample(*tx_xy)) + tx_h]
+    buildings = tuple(buildings)
+    if any(b.contains(*tx_xy) and tx[2] <= b.roof_m for b in buildings):
+        raise ValueError("transmitter must be outdoors or above building roofs")
+    for b in buildings:
+        terrain.sample([b.xmin, b.xmax], [b.ymin, b.ymax])
     if pattern is not None:
         pattern_index = frequency_index(pattern, pattern_index)
         if not np.isclose(pattern.frequency_hz[pattern_index], f, rtol=1e-12):
@@ -387,6 +467,11 @@ def coverage_map(
     distance = np.linalg.norm(np.column_stack([xy, z]) - tx, axis=1)
     horizontal = np.linalg.norm(xy - tx[:2], axis=1)
     valid = (distance >= minimum) & (horizontal > 0)
+    building_mask = np.zeros(len(xy), dtype=bool)
+    for b in buildings:
+        building_mask |= b.contains(xy[:, 0], xy[:, 1])
+    # This is an outdoor ground-level map, not indoor or rooftop reception.
+    valid &= ~building_mask
     fspl = np.full(len(xy), np.nan)
     loss = fspl.copy()
     gain = fspl.copy()
@@ -401,6 +486,7 @@ def coverage_map(
             f,
             sample_spacing_m=sample_spacing_m,
             effective_earth_radius_m=effective_earth_radius_m,
+            buildings=buildings,
         )
         loss[k] = profile.diffraction_db if diffraction else 0
         los[k] = profile.line_of_sight
@@ -409,7 +495,7 @@ def coverage_map(
         if diffraction and not profile.line_of_sight:
             edge = profile.dominant_index
             frac = profile.distance_m[edge] / profile.distance_m[-1]
-            direction = np.r_[frac * (rx[:2] - tx[:2]), profile.terrain_m[edge] - tx[2]]
+            direction = np.r_[frac * (rx[:2] - tx[:2]), profile.obstruction_m[edge] - tx[2]]
         gain[k] = (
             0
             if pattern is None
@@ -445,7 +531,9 @@ def coverage_map(
         min_distance_m=minimum,
         sample_spacing_m=sample_spacing_m,
         effective_earth_radius_m=effective_earth_radius_m,
-        limitations="Single-edge low-angle approximation; no multi-edge interactions, ground reflections, rock penetration, buildings, foliage, fading or atmospheric absorption. Not measurement validated.",
+        buildings=[asdict(b) for b in buildings],
+        receiver_domain="Outdoor ground grid; building footprints excluded",
+        limitations="Single-edge low-angle terrain/roof approximation; no multi-edge interactions, reflections, street-corner propagation, wall/rock penetration, foliage, fading or atmospheric absorption. Not measurement validated.",
     )
     return CoverageResult(
         *(a.reshape(shape) for a in (received, loss, fspl, gain, los, valid, angle)),
@@ -453,4 +541,5 @@ def coverage_map(
         terrain.x_m,
         terrain.y_m,
         terrain.elevation_m,
+        building_mask.reshape(shape),
     )

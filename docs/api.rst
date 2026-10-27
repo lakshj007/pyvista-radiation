@@ -51,6 +51,11 @@ Terrain and coverage
    :members:
 
 .. autofunction:: pyvista_radiation.synthetic_terrain
+.. autofunction:: pyvista_radiation.synthetic_environment
+
+.. autoclass:: pyvista_radiation.Building
+   :members:
+
 .. autofunction:: pyvista_radiation.load_terrain
 .. autofunction:: pyvista_radiation.save_terrain
 .. autofunction:: pyvista_radiation.coverage_map
