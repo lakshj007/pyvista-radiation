@@ -21,11 +21,12 @@ button{cursor:pointer}select:focus-visible,button:focus-visible{outline:3px soli
 .cut{background:white;padding:16px 18px;border:1px solid #d1dee6;border-radius:6px}.cut h2{font:19px Georgia,serif;margin:0 0 5px}
 .cut svg{width:100%;display:block;font:11px Arial;fill:#526674}.legend{display:flex;gap:24px;font:12px ui-monospace,monospace;margin-bottom:8px}
 .metrics{margin:18px 0}.metrics table{width:100%;border-collapse:collapse;text-align:left;font:13px ui-monospace,monospace}.metrics th,.metrics td{padding:10px;border-bottom:1px solid #cad7e0}.metrics caption{text-align:left;margin-bottom:10px;font:16px Georgia,serif}.difference-ramp{height:10px;flex:1;background:linear-gradient(90deg,#3b4cc0,#ddd,#b40426)}.difference{margin-top:18px}.a{color:#1574b8}.b{color:#cb5b32}.summary{font:13px ui-monospace,monospace;padding-top:14px}footer{padding:18px 0;color:#526674;font-size:12px}
-@media(max-width:760px){.app{padding:14px}header{display:block}h1{font-size:29px}.cuts{grid-template-columns:1fr}.scene{height:340px}.controls{gap:10px}.scene-labels{font-size:19px}}
+.terrain-panel{margin:20px 0}.terrain-error{margin:12px 0;padding:12px;background:#fff0e8;color:#8a3e1e;border:1px solid #d9a88a}.terrain-settings{margin:6px 0 14px}.terrain-settings summary{cursor:pointer;color:#1574b8;font-size:14px}.calculate-coverage{background:#1574b8;color:white;margin-bottom:8px}.terrain-panel h2{font:24px Georgia,serif}.terrain-scene{height:470px;background:#132d40;margin-top:14px;border-radius:5px;overflow:hidden}.terrain-profile svg{width:100%;font:12px Arial;fill:#526674}.terrain-ramp-received{height:10px;flex:1;background:linear-gradient(90deg,#440154,#3b528b,#21918c,#5ec962,#fde725)}.terrain-ramp-diffraction{height:10px;flex:1;background:linear-gradient(90deg,#000004,#721f81,#f1605d,#fcfdbf)}.terrain-ramp-los{height:10px;flex:1;background:linear-gradient(90deg,#a50026,#ffffbf,#006837)}
+@media(max-width:760px){.terrain-scene{height:300px}.app{padding:14px}header{display:block}h1{font-size:29px}.cuts{grid-template-columns:1fr}.scene{height:340px}.controls{gap:10px}.scene-labels{font-size:19px}}
 """
 
 
-def create_app(data=None, *, server_name="radiation-comparison"):
+def create_app(data=None, *, server_name="radiation-comparison", terrain=None):
     """Build a trame server and viewer; no listening socket until server.start()."""
     import pyvista as pv
     from trame.app import get_server
@@ -33,12 +34,14 @@ def create_app(data=None, *, server_name="radiation-comparison"):
     from trame.widgets import html
     from trame_pyvista.widgets import PyVistaLocalView
 
+    from .terrain_view import TerrainPanel
+
     data = load_patch() if data is None else data
     # Reject unsupported browser cuts before allocating a plotter or server.
     principal_cut(data, 0, "xz")
     principal_cut(data, 0, "yz")
     server = get_server(server_name, client_type="vue3")
-    server.state.trame__title = "Patch antenna · radiation comparison"
+    server.state.trame__title = "Antenna patterns · terrain coverage"
     state = server.state
     state.style_html = "<style>" + CSS + "</style>"
     state.left_index = 0
@@ -101,12 +104,15 @@ def create_app(data=None, *, server_name="radiation-comparison"):
         )
 
     text_state()
+    terrain_panel = TerrainPanel(server, data, terrain)
     with DivLayout(server) as layout:
         html.Div(v_html=("style_html",))
         with html.Div(classes="app"):
             with html.Header():
-                html.H1("Patch antenna / frequency study")
+                html.H1("Antenna patterns / terrain coverage")
                 html.Span("openEMS reference · 32 × 40 mm patch · PyVista")
+            terrain_panel.ui()
+            html.H2("Radiation pattern comparison", id="patterns")
             with html.Div(classes="controls"):
                 for label, key in [
                     ("Left frequency", "left_index"),
@@ -246,6 +252,7 @@ def create_app(data=None, *, server_name="radiation-comparison"):
     server.controller.camera_preset = camera_preset
     server.controller.reset_camera = reset_camera
     # Retain UI and scene while the server is running.
+    server._terrain_panel = terrain_panel
     server._difference_plotter = diff_plotter
     server._difference_mesh = diff_mesh
     server._radiation_viewer = viewer
@@ -253,11 +260,12 @@ def create_app(data=None, *, server_name="radiation-comparison"):
     return server, viewer
 
 
-def serve(data=None, *, port=8766):
+def serve(data=None, *, port=8766, terrain=None):
     """Run a localhost-only comparison app; Ctrl+C stops it."""
-    server, viewer = create_app(data)
+    server, viewer = create_app(data, terrain=terrain)
     try:
         server.start(host="127.0.0.1", port=port, open_browser=False)
     finally:
         viewer.close()
+        server._terrain_panel.plotter.close()
         server._difference_plotter.close()

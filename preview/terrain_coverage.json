@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "model": "Free space plus dominant single knife-edge approximation",
+    "frequency_hz": 2400000000.0,
+    "terrain_source": "Synthetic mountains landscape (illustrative; metres)",
+    "terrain_units": "m",
+    "tx_xyz_m": [
+      -2400.0,
+      0.0,
+      30.03510708706308
+    ],
+    "tx_height_agl_m": 30.0,
+    "rx_height_agl_m": 2.0,
+    "tx_power_dbm": 30.0,
+    "assumed_tx_peak_gain_dbi": 0.0,
+    "assumed_rx_gain_dbi": 0.0,
+    "system_loss_db": 0.0,
+    "saved_pattern_used": true,
+    "heading_deg": 0.0,
+    "elevation_deg": 0.0,
+    "diffraction_enabled": true,
+    "min_distance_m": 10.0,
+    "sample_spacing_m": null,
+    "effective_earth_radius_m": 8500000.0,
+    "limitations": "Single-edge low-angle approximation; no multi-edge interactions, ground reflections, rock penetration, buildings, foliage, fading or atmospheric absorption. Not measurement validated."
+  },
+  "blocked_fraction": 0.6099190283400809,
+  "covered_fraction_above_minus90_dbm": 0.39615384615384613,
+  "maximum_added_loss_db": 42.77271316430913,
+  "large_angle_fraction": 0.0742914979757085
+}

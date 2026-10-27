@@ -27,6 +27,20 @@ The browser app updates a live Python PyVista scene through trame and renders
 with VTK.js. The earlier [standalone HTML preview](preview/radiation_patterns.html)
 is also retained and can be opened without a Python server.
 
+## Terrain-aware coverage
+
+The viewer now includes approximate signal coverage over synthetic ridges and
+mountains. Terrain changes calculated path loss through obstruction and
+single-dominant-edge diffraction. Change transmitter height, orientation,
+frequency or power and compare against the obstruction-loss-disabled baseline.
+The map shows received power, additional terrain loss or geometric sight lines.
+
+The landscape is illustrative, and transmit/receive gains are explicit
+assumptions. This first model omits multiple-edge interactions, reflections,
+through-rock penetration, buildings and foliage; it is not measurement validated.
+See [terrain model, limits and real elevation-grid input](docs/terrain.rst).
+Local metric terrain NPZ files can be supplied with `pyvista-radiation --terrain terrain.npz`.
+
 ## Python API
 
 ```python

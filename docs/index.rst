@@ -9,6 +9,7 @@ frequency dependence. The bundled openEMS patch example runs without a solver.
 
    getting-started
    examples
+   terrain
    validation
    api
 

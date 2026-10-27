@@ -6,9 +6,15 @@ from .model import RadiationData, load, save
 from .numerics import amplitude_db, directivity, power_db, principal_cut, spherical_directions
 from .plotting import RadiationViewer, compare_patterns, plot_pattern
 from .samples import load_patch
+from .terrain import TerrainGrid, coverage_map, load_terrain, save_terrain, synthetic_terrain
 
 __version__ = "0.2.0"
 __all__ = [
+    "TerrainGrid",
+    "coverage_map",
+    "load_terrain",
+    "save_terrain",
+    "synthetic_terrain",
     "beamwidth",
     "half_power_beamwidth",
     "pattern_difference",

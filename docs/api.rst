@@ -43,3 +43,18 @@ Comparison measurements
 .. autofunction:: pyvista_radiation.half_power_beamwidth
 .. autofunction:: pyvista_radiation.pattern_difference
 .. autofunction:: pyvista_radiation.difference_mesh
+
+Terrain and coverage
+--------------------
+
+.. autoclass:: pyvista_radiation.TerrainGrid
+   :members:
+
+.. autofunction:: pyvista_radiation.synthetic_terrain
+.. autofunction:: pyvista_radiation.load_terrain
+.. autofunction:: pyvista_radiation.save_terrain
+.. autofunction:: pyvista_radiation.coverage_map
+
+.. autofunction:: pyvista_radiation.terrain.path_profile
+.. autofunction:: pyvista_radiation.terrain.free_space_loss
+.. autofunction:: pyvista_radiation.terrain.knife_edge_loss

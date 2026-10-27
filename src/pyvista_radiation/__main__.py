@@ -17,6 +17,9 @@ def main():
     parser.add_argument(
         "--port", type=int, default=8766, help="localhost browser port (default 8766)"
     )
+    parser.add_argument(
+        "--terrain", help="Local metric terrain NPZ; defaults to illustrative synthetic landscapes"
+    )
     args = parser.parse_args()
     data = load(args.dataset) if args.dataset else load_patch()
     if args.native:
@@ -27,9 +30,10 @@ def main():
         )
         viewer.show()
     else:
+        from .terrain import load_terrain
         from .webapp import serve
 
-        serve(data, port=args.port)
+        serve(data, port=args.port, terrain=load_terrain(args.terrain) if args.terrain else None)
 
 
 if __name__ == "__main__":
