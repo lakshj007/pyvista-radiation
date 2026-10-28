@@ -11,6 +11,7 @@ CSS = """
 .app{max-width:1800px;margin:auto;padding:22px 28px}header{display:flex;align-items:baseline;gap:24px;border-bottom:1px solid #bccbd5;padding-bottom:15px}
 h1{font:36px Georgia,serif;margin:0}header span,.note{color:#526674;font-size:13px}
 .controls{display:flex;gap:18px;align-items:end;flex-wrap:wrap;padding:18px 0}
+.app pre{font:12px/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;padding:14px;border:1px solid #d1dee6;border-radius:4px}
 label{display:grid;gap:6px;font:12px ui-monospace,monospace;color:#526674}
 select,button{font:14px Arial;padding:9px 12px;border:1px solid #acbdc9;background:white;color:#132d40;border-radius:4px}
 button{cursor:pointer}select:focus-visible,button:focus-visible{outline:3px solid #1574b8;outline-offset:3px}
@@ -26,7 +27,7 @@ button{cursor:pointer}select:focus-visible,button:focus-visible{outline:3px soli
 """
 
 
-def create_app(data=None, *, server_name="radiation-comparison", terrain=None):
+def create_app(data=None, *, server_name="radiation-comparison", terrain=None, coverage=False):
     """Build a trame server and viewer; no listening socket until server.start()."""
     import pyvista as pv
     from trame.app import get_server
@@ -34,14 +35,12 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None):
     from trame.widgets import html
     from trame_pyvista.widgets import PyVistaLocalView
 
-    from .terrain_view import TerrainPanel
-
     data = load_patch() if data is None else data
     # Reject unsupported browser cuts before allocating a plotter or server.
     principal_cut(data, 0, "xz")
     principal_cut(data, 0, "yz")
     server = get_server(server_name, client_type="vue3")
-    server.state.trame__title = "Antenna patterns · terrain coverage"
+    server.state.trame__title = "pyvista-radiation · PyVista extension demo"
     state = server.state
     state.style_html = "<style>" + CSS + "</style>"
     state.left_index = 0
@@ -104,14 +103,31 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None):
         )
 
     text_state()
-    terrain_panel = TerrainPanel(server, data, terrain)
+    terrain_panel = None
+    if coverage or terrain is not None:
+        from .terrain_view import TerrainPanel
+
+        terrain_panel = TerrainPanel(server, data, terrain)
     with DivLayout(server) as layout:
         html.Div(v_html=("style_html",))
         with html.Div(classes="app"):
             with html.Header():
-                html.H1("Antenna patterns / terrain coverage")
-                html.Span("openEMS reference · 32 × 40 mm patch · PyVista")
-            terrain_panel.ui()
+                html.H1("pyvista-radiation")
+                html.Span("A PyVista extension · antenna radiation visualization and analysis")
+            html.Div(
+                "Explore native PyVista radiation meshes from saved complex far fields. "
+                "This browser page demonstrates the Python library; no solver is needed.",
+                classes="explanation",
+            )
+            with html.Details(classes="terrain-settings"):
+                html.Summary("Use the extension in your own PyVista scene")
+                html.Pre(
+                    "import pyvista as pv\n"
+                    "from pyvista_radiation import load_patch\n\n"
+                    "plotter = pv.Plotter()\n"
+                    "actor = plotter.radiation.add_pattern(load_patch(), index=1)\n"
+                    "plotter.show()"
+                )
             html.H2("Radiation pattern comparison", id="patterns")
             with html.Div(classes="controls"):
                 for label, key in [
@@ -210,6 +226,21 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None):
                     "Unit sphere; values outside ±20 dB saturate. Both fields at the floor give zero difference.",
                     classes="note",
                 )
+            if terrain_panel is not None:
+                html.H2("Optional propagation example")
+                html.Div(
+                    "Synthetic terrain and city coverage demonstrate an approximate propagation "
+                    "layer. They are separate from radiation mesh conversion and are not "
+                    "measurement-validated coverage predictions.", classes="explanation",
+                )
+                terrain_panel.ui()
+            else:
+                with html.Details(classes="terrain-settings"):
+                    html.Summary("Optional terrain and city example")
+                    html.P(
+                        "Run pyvista-radiation --coverage to include the illustrative propagation "
+                        "example. Native mesh creation and plotting work independently of it."
+                    )
             html.Footer(
                 "Saved solver fields remain unchanged. Numerical integration and principal cuts are tested against analytic patterns and independent openEMS outputs."
             )
@@ -260,12 +291,13 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None):
     return server, viewer
 
 
-def serve(data=None, *, port=8766, terrain=None):
+def serve(data=None, *, port=8766, terrain=None, coverage=False):
     """Run a localhost-only comparison app; Ctrl+C stops it."""
-    server, viewer = create_app(data, terrain=terrain)
+    server, viewer = create_app(data, terrain=terrain, coverage=coverage)
     try:
         server.start(host="127.0.0.1", port=port, open_browser=False)
     finally:
         viewer.close()
-        server._terrain_panel.plotter.close()
+        if server._terrain_panel is not None:
+            server._terrain_panel.plotter.close()
         server._difference_plotter.close()

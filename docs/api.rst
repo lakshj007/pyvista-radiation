@@ -10,6 +10,8 @@ Data
 .. autofunction:: pyvista_radiation.load
 .. autofunction:: pyvista_radiation.save
 .. autofunction:: pyvista_radiation.load_patch
+.. autofunction:: pyvista_radiation.from_arrays
+.. autofunction:: pyvista_radiation.load_csv
 
 Geometry and numerics
 ---------------------
@@ -23,6 +25,9 @@ Geometry and numerics
 
 Plotting
 --------
+
+.. autoclass:: pyvista_radiation._pyvista_plugin.RadiationComponent
+   :members: add_pattern, set_frequency, remove_pattern
 
 .. autoclass:: pyvista_radiation.RadiationViewer
    :members:

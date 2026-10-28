@@ -1,17 +1,27 @@
 pyvista-radiation
 =================
 
-Turn saved antenna far fields into validated PyVista surfaces and compare their
-frequency dependence. The bundled openEMS patch example runs without a solver.
+A third-party PyVista extension for antenna radiation data. Load saved complex
+far fields, create ordinary PyVista meshes, compare frequencies and extract
+principal-plane cuts in your own Python workflows. The bundled openEMS patch
+example runs without a solver. A lazy plotter component integrates directly with
+your existing ``pyvista.Plotter``; the browser dashboard is an optional demo.
 
 .. toctree::
    :maxdepth: 2
 
    getting-started
+   extension
+   importing
    examples
-   terrain
    validation
    api
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Optional application example
+
+   terrain
 
 The :download:`version 1 NPZ contract <data-contract.md>` documents physical
 units, array ordering, angular conventions, provenance, and validation rules.
@@ -19,7 +29,7 @@ units, array ordering, angular conventions, provenance, and validation rules.
 Scope
 -----
 
-This package reads saved results. It does not launch openEMS, infer gain from
+The core library reads and visualizes supplied results. It does not launch openEMS, infer gain from
 unnormalized fields, or claim measurement or mesh-convergence validation for
 the tutorial antenna. Directivity from angular integration is separately
 validated and does not establish antenna efficiency.

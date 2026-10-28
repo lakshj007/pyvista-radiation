@@ -1,120 +1,128 @@
 # pyvista-radiation
 
-Load saved antenna far fields, create validated PyVista meshes, and compare
-patterns across frequency. The bundled openEMS patch dataset works without a
-solver installation.
+A third-party **PyVista extension for antenna radiation data**: load complex far
+fields, build ordinary PyVista meshes, compare frequencies and extract radiation
+cuts. Use it in your own scripts, notebooks and `pyvista.Plotter` scenes.
+The bundled openEMS patch dataset runs without a solver installation.
 
-## Try the comparison
+## Install from this checkout
 
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[preview,test]'
-pyvista-radiation
+pip install -e '.[plot]'
 ```
 
-Open **http://127.0.0.1:8766**. Choose two frequencies and compare their surfaces,
-colored unit spheres, and overlaid principal-plane cuts. The decibel radius makes
-weak lobes easier to inspect. Controls share color limits and explicitly select
-per-frequency or global normalization. Frequency changes retain the camera. Front/back/side presets, an interpolated beamwidth table, and a signed difference map help reveal changes in weaker lobes.
+The `plot` extra adds PyVista. The `browser` extra adds the optional trame demo;
+`preview` remains an alias for those browser dependencies. Data loading and
+numerical analysis require only NumPy. This checkout is not published on PyPI.
 
-```sh
-pyvista-radiation path/to/results.npz  # your saved dataset
-pyvista-radiation --native            # native PyVista window with frequency sliders
-```
-
-The browser app updates a live Python PyVista scene through trame and renders
-with VTK.js. The earlier [standalone HTML preview](preview/radiation_patterns.html)
-is also retained and can be opened without a Python server.
-
-## Terrain-aware coverage
-
-The viewer includes approximate signal coverage over synthetic ridges,
-mountains, rugged ranges, winding valleys, low-rise city blocks and downtown
-towers. Choose an environment and a west/center/east transmitter position.
-Terrain and building roofs change calculated path loss through obstruction and
-single-dominant-edge diffraction. Change transmitter height, orientation,
-frequency or power and compare against the obstruction-loss-disabled baseline.
-The map shows received power, additional terrain loss or geometric sight lines.
-
-The landscape is illustrative, and transmit/receive gains are explicit
-assumptions. This first model omits multiple-edge interactions, reflections,
-through-rock/wall penetration, street-corner propagation and foliage; it is not
-measurement validated. City colors show outdoor ground reception, with building
-footprints excluded; pale boxes show the buildings.
-See [terrain model, limits and real elevation-grid input](docs/terrain.rst).
-Local metric terrain NPZ files can be supplied with `pyvista-radiation --terrain terrain.npz`.
-
-## Python API
+## Native PyVista integration
 
 ```python
-from pyvista_radiation import load_patch, radiation_mesh, compare_patterns
+import pyvista as pv
+from pyvista_radiation import load_patch
 
-pattern = load_patch()  # installed package resource, no checkout/solver needed
-mesh = radiation_mesh(pattern, 1, mode='pattern')
-sphere = radiation_mesh(pattern, 1, mode='sphere')
-mesh.save('pattern.vtp')
-
-viewer = compare_patterns(pattern, (0, 2), radial_scale='db', floor_db=-30)
-viewer.set_frequency(0, 1)
-viewer.show()
+plotter = pv.Plotter()
+actor = plotter.radiation.add_pattern(load_patch(), index=0)
+plotter.radiation.set_frequency(actor, 1)
+plotter.show()
 ```
 
-Core loading requires only NumPy. The `preview` extra installs PyVista, Matplotlib
-and trame. Frequency indices refer to the stored `frequency_hz` axis. Mesh points
-carry physical field magnitude, relative field dB, display radius and original
-unit direction; field data records frequency and normalization reference.
+The installed package registers `radiation` through PyVista's lazy plotter
+component API. It adds a native `pyvista.Actor` to your current subplot. Standard
+`add_mesh` styling keywords work. `set_frequency(actor, index)` returns the
+updated mesh while retaining cameras, color limits and actor appearance.
 
-## What the scales mean
+Ordinary functions work independently of the component:
 
-- **Per-frequency peak:** compares shapes; every frequency has radius 1 at peak.
-- **Global peak:** compares saved amplitudes against the same reference across the
-  entire dataset. Feed matching and excitation spectra affect these values;
-  this is not a gain or efficiency comparison. The bundled dataset now removes the pulse source spectrum; its calibration is recorded in provenance.
-- **Linear radius:** relative field amplitude. **Decibel radius:**
-  `(relative_dB - floor_dB) / (-floor_dB)`, a display quantity that reveals weak lobes.
-- **Sphere:** unit radius; color alone encodes relative field strength.
+```python
+from pyvista_radiation import load_patch, radiation_mesh, principal_cut
 
-Saved complex fields are never normalized or floored. Directivity is available
-separately via `directivity()` or `radiation_mesh(..., quantity='directivity')`.
-It uses angular power integration and is validated against analytic patterns
-and the saved solver result. It does not establish gain or efficiency.
+data = load_patch()
+mesh = radiation_mesh(data, 1, radial_scale='db', floor_db=-30)
+clipped = mesh.clip(normal='x')
+angles_deg, relative_field_db = principal_cut(data, 1, plane='xz')
+mesh.save('pattern.vtp')
+```
 
-## Validation, docs and distributions
+Meshes are normal `pyvista.PolyData`, with field magnitude, relative decibels,
+display radius, unit directions, frequency and normalization metadata.
+The extension does not subclass or modify PyVista's core dataset types.
+
+## Bring your own fields
+
+Use `from_arrays(...)` with complex NumPy fields and explicit angle units,
+reference radius and provenance. `load_csv(...)` accepts a documented long-form
+complex-field exchange format; `load(...)` / `save(...)` preserve the NPZ contract.
+These adapters preserve phase and reject ambiguous units, incomplete grids and
+conflicting duplicate samples. Vendor-specific solver exports must be mapped to
+the declared convention; the package does not guess gain, calibration or phase.
+See [importing fields](docs/importing.rst) and the [data contract](docs/data-contract.md).
+
+## Examples and optional browser demo
 
 ```sh
+python examples/pyvista_extension.py
+python examples/user_arrays.py
+# Headless figure + native VTP output:
+python examples/pyvista_extension.py --screenshot preview/pyvista_extension.png
+
+pip install -e '.[browser]'
+pyvista-radiation                  # radiation comparison at http://127.0.0.1:8766
+pyvista-radiation results.npz      # your saved dataset
+pyvista-radiation --native         # native frequency comparison
+pyvista-radiation --coverage       # optional synthetic terrain/city example
+```
+
+For notebooks, install ``pip install -e '.[notebook]'`` into your kernel
+environment and open [the notebook walkthrough](examples/pyvista_extension.ipynb).
+It uses PyVista's interactive trame backend; a notebook editor is supplied by
+your existing Jupyter or VS Code setup.
+
+The browser demonstrates the reusable library with linked surfaces, unit
+spheres, frequency sliders/selectors, principal-plane cuts, beamwidths and signed
+differences. Native mesh creation does not need the browser dependencies.
+The earlier [standalone HTML preview](preview/radiation_patterns.html) is retained.
+
+![Native PyVista mesh, plotter component and standard clip filter](preview/pyvista_extension.png)
+
+## Scope and scientific limits
+
+Per-frequency peak normalization compares pattern shapes. Global normalization
+compares saved field amplitudes under a shared reference, not gain or efficiency.
+Decibel radius is a display scale, never a physical antenna surface or distance.
+`directivity()` uses angular integration and is distinct from gain.
+
+The core extension visualizes and analyzes supplied results; it does not run a
+full-wave solver. The optional terrain/city layer is an illustrative propagation
+example with explicit assumptions. It approximates one dominant terrain/roof
+edge and omits reflections, street-corner propagation, wall/rock penetration,
+multiple-edge interactions and foliage. Its coverage is not measurement validated.
+See [terrain example and limits](docs/terrain.rst).
+
+## Validation and development
+
+```sh
+pip install -e '.[preview,dev,docs]'
 pytest -q
-python examples/validate_patterns.py
-python examples/preview.py
-pip install -e '.[dev,docs]'
+ruff check src tests examples
 sphinx-build -W -b html docs docs/_build/html
 python -m build
 ```
 
-[Validation overlays](preview/validation.png) compare mesh samples against two
-independent solver cuts at all three frequencies. The [error report](preview/validation.json)
-records residuals and directivity differences. Analytic tests check orientation,
-surface connectivity, poles/seams, normalization and decibels. The patch remains a tutorial reference: the controlled refinement study does
-not yet pass the feed-matching convergence criterion, and there is no
-measurement validation.
+Tests cover analytic fields, coordinates, mesh topology, complex-field imports,
+PyVista component discovery/lifecycle, camera retention, native exports and
+independent saved openEMS cuts. These checks establish implementation behavior,
+not agreement with measured antennas. The reference patch's feed-matching
+refinement criterion still fails, as recorded in [validation](docs/validation.rst).
 
-![Mesh samples versus independent solver cuts](preview/validation.png)
-
-Phases 1–6 are implemented: reproducible reference data; documented data model;
-reusable sphere/pattern mesh conversion; analytic and solver validation;
-frequency comparison through ordinary plotting functions and a reusable viewer;
-installable package, bundled data, Sphinx docs, examples and CI checks. Publishing
-the repository changes, docs hosting and a PyPI release remain separate actions.
-
-- [Data contract](docs/data-contract.md)
-- [Getting started](docs/getting-started.rst) and [API](docs/api.rst)
+- [Getting started](docs/getting-started.rst)
+- [PyVista integration](docs/extension.rst) and [API](docs/api.rst)
 - [Examples and normalization](docs/examples.rst)
-- [Validation limits](docs/validation.rst)
 - [Solver reproduction and attribution](simulations/README.md)
-- [Original dataset provenance](data/patch_reference.json)
 
-Core library and independently written tooling: MIT. Adapted simulation script:
-GPL-3.0-or-later, with attribution and license under `simulations/`. Generated
-numerical data: CC0-1.0. openEMS and CSXCAD are not imported by the library.
-
-Controlled solver sensitivity results and reproduction commands are described in [validation](docs/validation.rst). Raw solver arrays are retained alongside the source-calibrated exchange data.
+Core library and independently written tooling: MIT. Adapted simulation sources:
+GPL-3.0-or-later with attribution under `simulations/`. Generated numerical data:
+CC0-1.0. openEMS and CSXCAD are not imported by the library. No release, PyPI
+publication or documentation hosting is part of this draft.

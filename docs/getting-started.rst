@@ -1,39 +1,70 @@
 Getting started
-===============
+===================
 
-Install from a checkout::
+Install the extension from a checkout::
 
    python3 -m venv .venv
    source .venv/bin/activate
-   pip install -e '.[preview,test]'
+   pip install -e '.[plot]'
 
-Launch the interactive comparison::
+Create and plot a native mesh
+---------------------------------
 
+.. code-block:: python
+
+   import pyvista as pv
+   from pyvista_radiation import load_patch, radiation_mesh
+
+   data = load_patch()
+   mesh = radiation_mesh(data, frequency_index=1)
+   plotter = pv.Plotter()
+   plotter.add_mesh(mesh, scalars='Relative field (dB)', clim=(-40, 0))
+   plotter.show()
+
+The bundled sample is installed with the package and works outside the checkout.
+No openEMS installation or simulation is required. The result is a normal
+``pyvista.PolyData`` with physical field samples and display metadata. Use
+``plotter.radiation.add_pattern(data, index=1)`` to add a pattern through the lazy
+PyVista plotter component instead. See :doc:`extension` and :doc:`importing`.
+
+Run ``python examples/pyvista_extension.py`` for an interactive native example.
+For headless rendering, pass ``--screenshot preview/pyvista_extension.png``.
+``examples/user_arrays.py`` demonstrates complex NumPy input with an analytic
+dipole. PyVista's normal notebook backends are supported; interactive notebook
+rendering needs the browser/widget dependencies described by PyVista.
+
+Optional browser application
+--------------------------------
+
+Install the extra and launch the radiation comparison::
+
+   pip install -e '.[browser]'
    pyvista-radiation
 
-Open http://127.0.0.1:8766. Stop the local server with Ctrl+C.
-A saved NPZ file can be supplied as the first argument. The browser app currently
-requires full-sphere sampling containing the four principal azimuths 0°, 90°,
-180° and 270°. Use the general mesh API for other uniform azimuth grids.
+Open http://127.0.0.1:8766. Stop the server with Ctrl+C. The page demonstrates
+library meshes, cuts, beamwidths and frequency comparisons. Supply a saved
+NPZ file as the first argument. ``pyvista-radiation --native`` opens a native
+frequency comparison with sliders. The sliders select frequency indices; titles
+show the corresponding GHz value.
 
-For a native PyVista window::
+The optional propagation example is explicitly enabled::
 
-   pyvista-radiation --native
+   pyvista-radiation --coverage
+   pyvista-radiation --terrain terrain.npz
 
-The native frequency sliders use integer indices into the saved frequency axis;
-the panel titles show the corresponding GHz value.
+This adds synthetic terrain/city coverage after the radiation comparison. It is
+a separate approximate model, not a feature required to load or visualize fields.
 
-Core data loading needs only NumPy. PyVista and browser packages are optional
-until a mesh or viewer is created. Most users can install the wheel with
-``pip install 'pyvista-radiation[preview]'`` once a release is published.
-This checkout has not been published to PyPI.
+The browser comparison requires full-sphere sampling containing principal
+azimuths 0°, 90°, 180° and 270°. Use the general mesh API for other uniform
+azimuth grids. Data loading requires only NumPy. The ``plot`` extra adds PyVista;
+``browser`` adds the trame app; ``preview`` remains a compatible alias for the
+browser dependencies. This checkout has not been published to PyPI.
 
-The sample is installed inside the package, so it works outside this checkout::
+Licensing and source data
+-----------------------------
 
-   from pyvista_radiation import load_patch
-   data = load_patch()
-   print(data.frequency_hz)
-
-Raw solver outputs, simulation reproduction and source attribution live in the
-repository's ``data/`` and ``simulations/`` directories. Core code is MIT;
-the adapted simulation script is GPL-3.0-or-later; generated data is CC0-1.0.
+Raw solver outputs, reproduction and attribution live in ``data/`` and
+``simulations/``. Core code is MIT; the adapted simulation script is
+GPL-3.0-or-later; generated data is CC0-1.0. The extension is a third-party project,
+not a claim of PyVista endorsement. See :doc:`validation` for scientific limits.

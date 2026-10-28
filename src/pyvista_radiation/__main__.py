@@ -20,6 +20,9 @@ def main():
     parser.add_argument(
         "--terrain", help="Local metric terrain NPZ; defaults to illustrative synthetic landscapes"
     )
+    parser.add_argument(
+        "--coverage", action="store_true", help="include the optional terrain/city propagation demo"
+    )
     args = parser.parse_args()
     data = load(args.dataset) if args.dataset else load_patch()
     if args.native:
@@ -33,7 +36,8 @@ def main():
         from .terrain import load_terrain
         from .webapp import serve
 
-        serve(data, port=args.port, terrain=load_terrain(args.terrain) if args.terrain else None)
+        serve(data, port=args.port, terrain=load_terrain(args.terrain) if args.terrain else None,
+              coverage=args.coverage)
 
 
 if __name__ == "__main__":

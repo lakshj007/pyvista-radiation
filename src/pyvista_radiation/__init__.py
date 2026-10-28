@@ -1,4 +1,4 @@
-"""Saved antenna far fields, validated geometry and interactive PyVista views."""
+"""A PyVista extension for loading, visualizing and analyzing antenna far fields."""
 
 from .environments import synthetic_environment
 from .mesh import difference_mesh, radiation_mesh
@@ -6,6 +6,7 @@ from .metrics import beamwidth, half_power_beamwidth, pattern_difference
 from .model import RadiationData, load, save
 from .numerics import amplitude_db, directivity, power_db, principal_cut, spherical_directions
 from .plotting import RadiationViewer, compare_patterns, plot_pattern
+from .readers import from_arrays, load_csv
 from .samples import load_patch
 from .terrain import (
     Building,
@@ -18,6 +19,8 @@ from .terrain import (
 
 __version__ = "0.2.0"
 __all__ = [
+    "from_arrays",
+    "load_csv",
     "Building",
     "synthetic_environment",
     "TerrainGrid",

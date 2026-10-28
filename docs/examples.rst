@@ -1,5 +1,10 @@
-Examples and comparison controls
+Radiation visualization examples
 ================================
+
+Start with ``python examples/pyvista_extension.py`` for a normal PyVista scene,
+or ``python examples/user_arrays.py`` for analytic NumPy input. Both need only
+the ``plot`` extra. See :doc:`extension` for the plotter component, standard
+filters and mesh export, and :doc:`importing` for solver-independent adapters.
 
 Create meshes
 -------------
@@ -37,6 +42,8 @@ A reusable viewer can update an existing scene::
 These operations preserve the camera and actors. ``viewer.close()`` releases
 resources. For a live browser view, use ``pyvista-radiation`` or run
 ``python examples/compare_frequencies.py``.
+The separate terrain/city example requires ``pyvista-radiation --coverage``
+or ``python examples/coverage_demo.py`` and is documented in :doc:`terrain`.
 
 Read the scales
 ---------------

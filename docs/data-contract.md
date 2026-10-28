@@ -48,6 +48,10 @@ coverage is required by the example preview but not by the data model.
 ```
 
 `kind` may also be `analytic`, with solver_version `not applicable`.
+The `from_arrays` and `load_csv` adapters construct this same contract from
+explicitly declared complex V/m samples. They convert selected degree angles
+to radians and validate/remove an agreeing duplicate phi endpoint. They do not
+infer phase, physical units, normalization, gain or source calibration.
 Unknown schema versions, conventions, units, order, normalization and archive
 keys fail clearly with `ValueError`. Additional JSON metadata is preserved.
 Record antenna parameters, phase center, solver settings, generation date,

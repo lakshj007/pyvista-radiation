@@ -1,6 +1,11 @@
 Terrain-aware coverage prototype
 ================================
 
+This is an optional application example separate from the PyVista radiation
+extension. Launch with ``pyvista-radiation --coverage`` or
+``python examples/coverage_demo.py``. It appears after the radiation comparison;
+the standard browser demo and native APIs work independently of this layer.
+
 The browser viewer includes a terrain section that estimates actual extra
 propagation loss, rather than placing decorative hills around the far-field
 surface. It uses synthetic flat, ridge and mountain landscapes over a local
