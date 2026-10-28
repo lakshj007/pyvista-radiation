@@ -33,6 +33,16 @@ For headless rendering, pass ``--screenshot preview/pyvista_extension.png``.
 dipole. PyVista's normal notebook backends are supported; interactive notebook
 rendering needs the browser/widget dependencies described by PyVista.
 
+On a headless Debian/Ubuntu host, VTK also needs runtime graphics libraries::
+
+   sudo apt-get update
+   sudo apt-get install -y libopengl0 libgl1 libegl1 libegl-mesa0 libgl1-mesa-dri libxrender1
+
+These enable EGL/Mesa off-screen rendering on CPU-only hosts. See
+`PyVista's headless installation guidance <https://docs.pyvista.org/getting-started/installation>`_
+for other platforms. The native examples pass ``off_screen=True`` when a
+screenshot path is provided; the extension does not configure system drivers.
+
 Optional browser application
 --------------------------------
 
