@@ -60,10 +60,13 @@ show the corresponding GHz value.
 The optional propagation example is explicitly enabled::
 
    pyvista-radiation --coverage
+   pyvista-radiation --environment hillside_city
    pyvista-radiation --terrain terrain.npz
 
-This adds synthetic terrain/city coverage after the radiation comparison. It is
-a separate approximate model, not a feature required to load or visualize fields.
+This opens the city/landscape scene first, with radiation graphs in an expandable
+section below. The hillside-city preset combines ridges, a winding dry valley,
+varied neighborhoods and roads. It is a separate approximate model, not a feature
+required to load or visualize fields.
 
 The browser comparison requires full-sphere sampling containing principal
 azimuths 0°, 90°, 180° and 270°. Use the general mesh API for other uniform

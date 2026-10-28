@@ -3,4 +3,4 @@
 from pyvista_radiation.webapp import serve
 
 if __name__ == "__main__":
-    serve(coverage=True)
+    serve(coverage=True, environment="hillside_city")

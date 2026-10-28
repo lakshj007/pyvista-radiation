@@ -82,8 +82,10 @@ Optional propagation example
 --------------------------------
 
 ``pyvista-radiation`` opens the radiation-only browser demo.
-``pyvista-radiation --coverage`` includes the synthetic terrain/city section
-after the radiation comparison. ``--terrain terrain.npz`` also enables it.
+``pyvista-radiation --coverage`` opens the hillside-city showcase first, with
+radiation comparisons in an expandable section below. Use
+``--environment hillside_city`` to select it explicitly; any supported environment
+can be selected with this option. ``--terrain terrain.npz`` also enables the demo.
 ``examples/coverage_demo.py`` launches the same optional example.
 The propagation model is separate from mesh conversion and is not a claim
 that PyVista itself simulates radio propagation. See :doc:`terrain` for limits.

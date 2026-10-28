@@ -23,6 +23,10 @@ def main():
     parser.add_argument(
         "--coverage", action="store_true", help="include the optional terrain/city propagation demo"
     )
+    from .environments import ENVIRONMENTS
+
+    parser.add_argument("--environment", choices=[key for key, _ in ENVIRONMENTS],
+                        help="open the landscape demo with this initial environment")
     args = parser.parse_args()
     data = load(args.dataset) if args.dataset else load_patch()
     if args.native:
@@ -37,7 +41,7 @@ def main():
         from .webapp import serve
 
         serve(data, port=args.port, terrain=load_terrain(args.terrain) if args.terrain else None,
-              coverage=args.coverage)
+              coverage=args.coverage, environment=args.environment)
 
 
 if __name__ == "__main__":

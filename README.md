@@ -62,6 +62,19 @@ See [importing fields](docs/importing.rst) and the [data contract](docs/data-con
 
 ## Examples and optional browser demo
 
+The featured city example combines a winding valley, surrounding hills, roughly
+190 buildings, varied neighborhoods and roads in one interactive PyVista scene.
+Ground colors show the selected coverage/elevation quantity. Move the transmitter
+or change its height and calculate again. Supporting graphs are expandable.
+
+```sh
+pip install -e '.[browser]'
+pyvista-radiation --environment hillside_city
+# Or: python examples/coverage_demo.py
+```
+
+![Synthetic hillside-city PyVista showcase](preview/urban_landscape.png)
+
 ```sh
 python examples/pyvista_extension.py
 python examples/user_arrays.py
@@ -72,7 +85,7 @@ pip install -e '.[browser]'
 pyvista-radiation                  # radiation comparison at http://127.0.0.1:8766
 pyvista-radiation results.npz      # your saved dataset
 pyvista-radiation --native         # native frequency comparison
-pyvista-radiation --coverage       # optional synthetic terrain/city example
+pyvista-radiation --coverage       # city-first hillside showcase
 ```
 
 For notebooks, install ``pip install -e '.[notebook]'`` into your kernel

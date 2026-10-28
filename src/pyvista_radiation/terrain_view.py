@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from .environments import ENVIRONMENTS, synthetic_environment
+from .environments import ENVIRONMENTS, environment_roads, synthetic_environment
 from .terrain import coverage_map, path_profile
 
 
@@ -12,11 +12,33 @@ def building_mesh(buildings, vertical_exaggeration=1):
 
     if not buildings:
         return None
-    return pv.merge([
-        pv.Box(bounds=(b.xmin, b.xmax, b.ymin, b.ymax,
-                       b.base_m * vertical_exaggeration, b.roof_m * vertical_exaggeration))
-        for b in buildings
-    ])
+    meshes = []
+    for b in buildings:
+        box = pv.Box(bounds=(b.xmin, b.xmax, b.ymin, b.ymax,
+                             b.base_m * vertical_exaggeration, b.roof_m * vertical_exaggeration))
+        box.cell_data["Building vertical extent (m)"] = np.full(box.n_cells, b.roof_m - b.base_m)
+        meshes.append(box)
+    return pv.merge(meshes)
+
+
+def road_meshes(terrain, kind, vertical_exaggeration=1):
+    """Drape contextual road ribbons over the exact same ground as coverage."""
+    import pyvista as pv
+
+    meshes = []
+    for center, width in environment_roads(kind):
+        tangent = np.gradient(center, axis=0)
+        normal = np.column_stack([-tangent[:, 1], tangent[:, 0]])
+        normal /= np.linalg.norm(normal, axis=1)[:, None]
+        edges = np.stack([center + width / 2 * normal, center - width / 2 * normal], axis=1)
+        xy = edges.reshape(-1, 2)
+        xy[:, 0] = np.clip(xy[:, 0], terrain.x_m[0], terrain.x_m[-1])
+        xy[:, 1] = np.clip(xy[:, 1], terrain.y_m[0], terrain.y_m[-1])
+        z = (terrain.sample(xy[:, 0], xy[:, 1]) + 0.6) * vertical_exaggeration
+        i = 2 * np.arange(len(center) - 1)
+        faces = np.column_stack([np.full(len(i), 4), i, i + 1, i + 3, i + 2])
+        meshes.append(pv.PolyData(np.column_stack([xy, z]), faces))
+    return meshes
 
 
 def terrain_mesh(terrain, result, *, quantity="received", vertical_exaggeration=1):
@@ -34,9 +56,10 @@ def terrain_mesh(terrain, result, *, quantity="received", vertical_exaggeration=
             np.where(result.valid, result.line_of_sight.astype(float), np.nan),
             "Geometric line of sight",
         ),
+        "elevation": (terrain.elevation_m, "Ground elevation (m)"),
     }
     if quantity not in options:
-        raise ValueError("quantity must be received, diffraction or los")
+        raise ValueError("quantity must be received, diffraction, los or elevation")
     values, name = options[quantity]
     mesh[name] = values.ravel(order="F")
     mesh["Ground elevation (m)"] = terrain.elevation_m.ravel(order="F")
@@ -91,7 +114,7 @@ def profile_svg(profile):
 class TerrainPanel:
     """Live approximate propagation controls; independent of saved pattern meshes."""
 
-    def __init__(self, server, data, terrain=None):
+    def __init__(self, server, data, terrain=None, *, initial_kind="ridge"):
         import pyvista as pv
 
         self.server = server
@@ -105,9 +128,10 @@ class TerrainPanel:
         self.unavailable = not np.any(data.field_magnitude > 0)
         self.actor = None
         self.view = None
+        self.context_meshes = []
         s = server.state
         defaults = dict(
-            kind="ridge",
+            kind=initial_kind,
             position="west",
             frequency=1 if len(data.frequency_hz) > 1 else 0,
             tx_height=30,
@@ -118,7 +142,7 @@ class TerrainPanel:
             elevation=0,
             model="diffraction",
             quantity="received",
-            exaggeration=3,
+            exaggeration=1 if initial_kind == "hillside_city" else 3,
             receiver="far",
             threshold=-90,
         )
@@ -147,6 +171,24 @@ class TerrainPanel:
             )
         else:
             self.server.state.terrain_error = ""
+
+    def reset_view(self, push=True, **_):
+        """Frame the currently calculated scene without applying pending settings."""
+        if self.mesh is None:
+            return
+        t = self.terrain
+        span = max(np.ptp(t.x_m), np.ptp(t.y_m))
+        target = (np.mean(t.x_m), np.mean(t.y_m), 0.2 * np.max(self.mesh.points[:, 2]))
+        self.plotter.camera_position = [
+            (target[0] - 0.85 * span, target[1] - 1.1 * span, 0.85 * span),
+            target, (0, 0, 1),
+        ]
+        self.plotter.camera.parallel_projection = True
+        self.plotter.camera.parallel_scale = 0.68 * span
+        self.plotter.reset_camera_clipping_range()
+        self.plotter.render()
+        if push and self.view is not None:
+            self.view.update_camera()
 
     def _calculate(self, reset=False):
         import pyvista as pv
@@ -188,6 +230,9 @@ class TerrainPanel:
                 "received": ((-120, -40), "viridis"),
                 "diffraction": ((0, 50), "magma"),
                 "los": ((0, 1), "RdYlGn"),
+                "elevation": ((float(t.elevation_m.min()),
+                               max(float(t.elevation_m.max()), float(t.elevation_m.min()) + 1)),
+                              "gist_earth"),
             }
         )[s.terrain_quantity]
         # Retain mesh ownership; rebuilding actors must not reset the camera.
@@ -203,12 +248,26 @@ class TerrainPanel:
             smooth_shading=True,
         )
         self.plotter.remove_actor("buildings", reset_camera=False, render=False)
+        for name in getattr(self, "context_actor_names", []):
+            self.plotter.remove_actor(name, reset_camera=False, render=False)
+        self.context_actor_names = []
+        self.context_meshes = []
         boxes = building_mesh(self.buildings, scale)
         if boxes is not None:
+            self.context_meshes.append(boxes)
             self.plotter.add_mesh(
-                boxes, color="#b6c6d3", show_edges=True, edge_color="#4c667b",
+                boxes, scalars="Building vertical extent (m)",
+                cmap=["#8198aa", "#c0cbd1", "#f1eee4"], clim=(0, 200),
+                show_scalar_bar=False, show_edges=True, edge_color="#4c667b",
                 name="buildings", reset_camera=False,
             )
+        if self.custom_terrain is None:
+            for i, road in enumerate(road_meshes(t, s.terrain_kind, scale)):
+                name = f"context_road_{i}"
+                self.context_meshes.append(road)
+                self.context_actor_names.append(name)
+                self.plotter.add_mesh(road, color="#364857", name=name, reset_camera=False,
+                                     show_scalar_bar=False, lighting=False)
         xyz = np.array(self.result.metadata["tx_xyz_m"])
         ground = float(t.sample(*self.tx_xy))
         self.plotter.add_mesh(
@@ -219,7 +278,7 @@ class TerrainPanel:
             reset_camera=False,
         )
         self.plotter.add_mesh(
-            pv.Sphere(radius=14, center=[xyz[0], xyz[1], xyz[2] * scale]),
+            pv.Sphere(radius=0.007 * np.ptp(t.x_m), center=[xyz[0], xyz[1], xyz[2] * scale]),
             color="#fdc85c",
             name="transmitter",
             reset_camera=False,
@@ -272,7 +331,7 @@ class TerrainPanel:
         s.terrain_steep_note = f"{100 * np.mean(self.result.large_angle[valid]):.1f}% of sampled paths exceed the approximate 12° diffraction-angle range; those estimates are less reliable."
         s.terrain_display_note = f"Local metric coordinates · vertical display exaggeration ×{scale:g} · mast markers not to scale · receivers inside 10 m excluded"
         s.terrain_environment_note = (
-            f"{len(self.buildings)} synthetic buildings · pale boxes are obstacles; colors on the ground show outdoor reception. Building footprints are excluded. Roof diffraction only: reflections, indoor reception and propagation around street corners are not calculated."
+            f"{len(self.buildings)} synthetic buildings · gold marker: transmitter · pale boxes: buildings · ground colors: selected map quantity. Buildings and terrain affect coverage; roads are visual context. Building footprints are excluded from outdoor reception."
             if self.buildings else
             "Synthetic landscape; ground colors show estimated reception above local ground. Multiple ridges are reduced to one dominant obstacle per path."
         )
@@ -280,18 +339,12 @@ class TerrainPanel:
             "received": ("-120 dBm or less", "-40 dBm or more"),
             "diffraction": ("0 dB", "50 dB or more"),
             "los": ("Blocked", "Clear"),
+            "elevation": (f"{t.elevation_m.min():.0f} m", f"{t.elevation_m.max():.0f} m"),
         }
         s.terrain_low, s.terrain_high = labels[s.terrain_quantity]
         s.terrain_key_class = "terrain-ramp-" + s.terrain_quantity
         if reset:
-            span = max(np.ptp(t.x_m), np.ptp(t.y_m))
-            self.plotter.camera_position = [
-                (np.mean(t.x_m) + 0.7 * span, np.mean(t.y_m) - 1.1 * span, 0.85 * span),
-                (np.mean(t.x_m), np.mean(t.y_m), 0.15 * np.max(self.mesh.points[:, 2])),
-                (0, 0, 1),
-            ]
-            self.plotter.camera.parallel_projection = True
-            self.plotter.camera.parallel_scale = 0.55 * span
+            self.reset_view(push=False)
         self.plotter.reset_camera_clipping_range()
         self.plotter.render()
         if self.view is not None:
@@ -305,13 +358,23 @@ class TerrainPanel:
 
         s = self.server.state
         with html.Div(classes="cut terrain-panel", id="coverage"):
-            html.H2("Environment-aware signal coverage · approximate")
+            html.H2("City and landscape")
             html.Div(
                 "{{ terrain_error }}", v_if="terrain_error", classes="terrain-error", role="alert"
             )
             if self.unavailable or self.result is None:
                 return
             html.Div("{{ terrain_source }}", classes="note")
+            with html.Div(classes="terrain-scene"):
+                self.view = PyVistaLocalView(
+                    self.plotter, namespace="terrain_coverage", style="width:100%;height:100%"
+                )
+            with html.Div(classes="color-key"):
+                html.Span("{{ terrain_low }}")
+                html.Div(classes=("terrain_key_class",))
+                html.Span("{{ terrain_high }}")
+            html.Div("Drag to explore · scroll to zoom · gold marker is the transmitter", classes="note")
+            html.Div("{{ terrain_applied }}", classes="note")
             items = [
                 (
                     "Environment",
@@ -363,6 +426,7 @@ class TerrainPanel:
                         ("received", "Estimated received power"),
                         ("diffraction", "Added terrain loss"),
                         ("los", "Geometric sight lines"),
+                        ("elevation", "Terrain elevation"),
                     ],
                 ),
                 (
@@ -386,7 +450,7 @@ class TerrainPanel:
                     [(str(v), f"{v} dBm") for v in (-70, -80, -90, -100)],
                 ),
             ]
-            primary = {"kind", "position", "frequency", "tx_height", "rx_height", "model", "quantity"}
+            primary = {"kind", "position", "tx_height", "quantity"}
 
             def control(label, key, options):
                 if key == "kind" and self.custom_terrain is not None:
@@ -409,31 +473,27 @@ class TerrainPanel:
                         if key not in primary:
                             control(label, key, options)
             html.Button("Calculate coverage", click=self.calculate, classes="calculate-coverage")
+            html.Button("Reset view", click=self.reset_view)
             html.Div("Change settings, then calculate to apply them.", classes="note")
-            html.Div("{{ terrain_applied }}", classes="note")
             html.Div("{{ terrain_environment_note }}", classes="explanation")
-            with html.Div(classes="terrain-scene"):
-                self.view = PyVistaLocalView(
-                    self.plotter, namespace="terrain_coverage", style="width:100%;height:100%"
-                )
-            with html.Div(classes="color-key"):
-                html.Span("{{ terrain_low }}")
-                html.Div(classes=("terrain_key_class",))
-                html.Span("{{ terrain_high }}")
-            html.Div("{{ terrain_status }}", classes="summary")
-            html.Div("{{ terrain_display_note }}", classes="note")
             html.Div(
-                "{{ terrain_model_note }} Clear sight line does not guarantee a clear Fresnel zone.",
-                classes="note",
-            )
-            html.Div(
-                "Free-space loss plus one dominant knife-edge approximation over terrain or roofs. Multiple-edge diffraction, reflections, wall/rock penetration, foliage and fading are not modeled. Assumed gains and receiver threshold are not device measurements. Synthetic scenes are for exploration, not verified city coverage.",
+                "Illustrative coverage · one dominant terrain/roof edge per path. "
+                "Reflections, street-corner propagation and indoor reception are not simulated.",
                 classes="explanation",
             )
-            html.Div("{{ terrain_steep_note }}", classes="note")
-            html.Div("{{ terrain_path_note }}", classes="summary")
-            html.Div(v_html=("terrain_profile_svg",), classes="terrain-profile")
-            html.Div(
-                "Profile: ground (brown), ground and roofs (gray), effective-Earth obstruction profile (dotted), direct sight line (blue), dominant obstacle (orange). Heights in metres.",
-                classes="note",
-            )
+            with html.Details(classes="terrain-settings"):
+                html.Summary("Inspect the path, coverage estimates and model limits")
+                html.Div("{{ terrain_status }}", classes="summary")
+                html.Div("{{ terrain_display_note }}", classes="note")
+                html.Div("{{ terrain_model_note }} Clear sight line does not guarantee a clear Fresnel zone.", classes="note")
+                html.Div("{{ terrain_steep_note }}", classes="note")
+                html.Div("{{ terrain_path_note }}", classes="summary")
+                html.Div(v_html=("terrain_profile_svg",), classes="terrain-profile")
+                html.Div(
+                    "Profile: ground (brown), ground and roofs (gray), effective-Earth obstruction profile (dotted), direct sight line (blue), dominant obstacle (orange). Heights in metres.",
+                    classes="note",
+                )
+                html.Div(
+                    "Single-edge approximation; no multiple-edge interactions, reflections, wall/rock penetration, foliage or fading. Equipment gains and thresholds are assumptions. No measurement validation.",
+                    classes="explanation",
+                )

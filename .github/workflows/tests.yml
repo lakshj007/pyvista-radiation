@@ -25,6 +25,7 @@ jobs:
         run: |
           python examples/pyvista_extension.py --screenshot "$RUNNER_TEMP/radiation.png"
           python examples/user_arrays.py --screenshot "$RUNNER_TEMP/dipole.png"
+          python examples/urban_landscape.py --screenshot "$RUNNER_TEMP/urban.png"
   package:
     runs-on: ubuntu-latest
     steps:

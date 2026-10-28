@@ -22,12 +22,13 @@ button{cursor:pointer}select:focus-visible,button:focus-visible{outline:3px soli
 .cut{background:white;padding:16px 18px;border:1px solid #d1dee6;border-radius:6px}.cut h2{font:19px Georgia,serif;margin:0 0 5px}
 .cut svg{width:100%;display:block;font:11px Arial;fill:#526674}.legend{display:flex;gap:24px;font:12px ui-monospace,monospace;margin-bottom:8px}
 .metrics{margin:18px 0}.metrics table{width:100%;border-collapse:collapse;text-align:left;font:13px ui-monospace,monospace}.metrics th,.metrics td{padding:10px;border-bottom:1px solid #cad7e0}.metrics caption{text-align:left;margin-bottom:10px;font:16px Georgia,serif}.difference-ramp{height:10px;flex:1;background:linear-gradient(90deg,#3b4cc0,#ddd,#b40426)}.difference{margin-top:18px}.a{color:#1574b8}.b{color:#cb5b32}.summary{font:13px ui-monospace,monospace;padding-top:14px}footer{padding:18px 0;color:#526674;font-size:12px}
-.terrain-panel{margin:20px 0}.terrain-error{margin:12px 0;padding:12px;background:#fff0e8;color:#8a3e1e;border:1px solid #d9a88a}.terrain-settings{margin:6px 0 14px}.terrain-settings summary{cursor:pointer;color:#1574b8;font-size:14px}.calculate-coverage{background:#1574b8;color:white;margin-bottom:8px}.terrain-panel h2{font:24px Georgia,serif}.terrain-scene{height:470px;background:#132d40;margin-top:14px;border-radius:5px;overflow:hidden}.terrain-profile svg{width:100%;font:12px Arial;fill:#526674}.terrain-ramp-received{height:10px;flex:1;background:linear-gradient(90deg,#440154,#3b528b,#21918c,#5ec962,#fde725)}.terrain-ramp-diffraction{height:10px;flex:1;background:linear-gradient(90deg,#000004,#721f81,#f1605d,#fcfdbf)}.terrain-ramp-los{height:10px;flex:1;background:linear-gradient(90deg,#a50026,#ffffbf,#006837)}
+.pattern-details>summary{cursor:pointer;font-size:17px;margin:18px 0;color:#1574b8}.terrain-panel{margin:20px 0}.terrain-error{margin:12px 0;padding:12px;background:#fff0e8;color:#8a3e1e;border:1px solid #d9a88a}.terrain-settings{margin:6px 0 14px}.terrain-settings summary{cursor:pointer;color:#1574b8;font-size:14px}.calculate-coverage{background:#1574b8;color:white;margin-bottom:8px}.terrain-panel h2{font:24px Georgia,serif}.terrain-scene{height:470px;background:#132d40;margin-top:14px;border-radius:5px;overflow:hidden}.terrain-profile svg{width:100%;font:12px Arial;fill:#526674}.terrain-ramp-received{height:10px;flex:1;background:linear-gradient(90deg,#440154,#3b528b,#21918c,#5ec962,#fde725)}.terrain-ramp-diffraction{height:10px;flex:1;background:linear-gradient(90deg,#000004,#721f81,#f1605d,#fcfdbf)}.terrain-ramp-elevation{height:10px;flex:1;background:linear-gradient(90deg,#000,#006b61,#a2b34f,#c9b99d,#fff)}.terrain-ramp-los{height:10px;flex:1;background:linear-gradient(90deg,#a50026,#ffffbf,#006837)}
 @media(max-width:760px){.terrain-scene{height:300px}.app{padding:14px}header{display:block}h1{font-size:29px}.cuts{grid-template-columns:1fr}.scene{height:340px}.controls{gap:10px}.scene-labels{font-size:19px}}
 """
 
 
-def create_app(data=None, *, server_name="radiation-comparison", terrain=None, coverage=False):
+def create_app(data=None, *, server_name="radiation-comparison", terrain=None, coverage=False,
+               environment=None):
     """Build a trame server and viewer; no listening socket until server.start()."""
     import pyvista as pv
     from trame.app import get_server
@@ -104,21 +105,29 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None, c
 
     text_state()
     terrain_panel = None
-    if coverage or terrain is not None:
+    if coverage or terrain is not None or environment is not None:
         from .terrain_view import TerrainPanel
 
-        terrain_panel = TerrainPanel(server, data, terrain)
+        terrain_panel = TerrainPanel(server, data, terrain,
+                                     initial_kind=environment or "hillside_city")
     with DivLayout(server) as layout:
         html.Div(v_html=("style_html",))
         with html.Div(classes="app"):
             with html.Header():
-                html.H1("pyvista-radiation")
-                html.Span("A PyVista extension · antenna radiation visualization and analysis")
+                html.H1("Urban radio playground" if terrain_panel is not None else "pyvista-radiation")
+                html.Span("A PyVista example · antenna fields, 3D landscapes and city geometry"
+                          if terrain_panel is not None else
+                          "A PyVista extension · antenna radiation visualization and analysis")
             html.Div(
+                "Explore synthetic cities and landscapes. Move the transmitter "
+                "or change its height to compare illustrative signal shadows."
+                if terrain_panel is not None else
                 "Explore native PyVista radiation meshes from saved complex far fields. "
                 "This browser page demonstrates the Python library; no solver is needed.",
                 classes="explanation",
             )
+            if terrain_panel is not None:
+                terrain_panel.ui()
             with html.Details(classes="terrain-settings"):
                 html.Summary("Use the extension in your own PyVista scene")
                 html.Pre(
@@ -128,119 +137,110 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None, c
                     "actor = plotter.radiation.add_pattern(load_patch(), index=1)\n"
                     "plotter.show()"
                 )
-            html.H2("Radiation pattern comparison", id="patterns")
-            with html.Div(classes="controls"):
-                for label, key in [
-                    ("Left frequency", "left_index"),
-                    ("Right frequency", "right_index"),
-                ]:
-                    with html.Label(label):
-                        with html.Select(v_model=(key, state[key]), aria_label=label):
-                            for i, f in enumerate(data.frequency_hz):
-                                html.Option(f"{f / 1e9:g} GHz", value=str(i))
-                for label, key, items in [
-                    (
-                        "View",
-                        "display_mode",
-                        [("pattern", "Radiation surface"), ("sphere", "Colored unit sphere")],
-                    ),
-                    (
-                        "Radius scale",
-                        "radial_scale",
-                        [
-                            ("db", "Decibels · reveal weak lobes"),
-                            ("linear", "Linear field amplitude"),
-                        ],
-                    ),
-                    (
-                        "Normalization",
-                        "normalization",
-                        [
-                            ("per_frequency", "Peak at each frequency"),
-                            ("global", "Shared peak across dataset"),
-                        ],
-                    ),
-                    (
-                        "Color floor",
-                        "floor_db",
-                        [
-                            ("-20", "−20 dB"),
-                            ("-30", "−30 dB"),
-                            ("-40", "−40 dB"),
-                            ("-60", "−60 dB"),
-                        ],
-                    ),
-                ]:
-                    with html.Label(label):
-                        with html.Select(v_model=(key, state[key]), aria_label=label):
-                            for value, text in items:
-                                html.Option(text, value=value)
-                html.Button("Reset camera", click=server.controller.reset_camera)
-                for name in ("front", "back", "side", "isometric"):
-                    html.Button(
-                        name.title(), click=(server.controller.camera_preset, f"['{name}']")
-                    )
-            with html.Div(classes="scene"):
-                with html.Div(classes="scene-labels"):
-                    html.Div("{{ left_label }}")
-                    html.Div("{{ right_label }}")
-                view = PyVistaLocalView(viewer.plotter, style="width:100%;height:100%")
-            with html.Div(classes="color-key"):
-                html.Span("{{ floor_label }}")
-                html.Div(classes="color-ramp")
-                html.Span("0 dB")
-            html.Div("Drag to rotate · Scroll to zoom · Views share a camera", classes="scene-note")
-            with html.Div(classes="explanation"):
-                html.Div("{{ reference_note }}")
-                html.Div(
-                    "{{ radius_note }} Color and cuts: relative electric field in dB, with shared limits."
-                )
-            with html.Div(classes="legend"):
-                html.Span("━━ {{ left_label }}", classes="a")
-                html.Span("━━ {{ right_label }}", classes="b")
-            with html.Div(classes="cuts"):
-                for plane, key, title in [
-                    ("xz", "xz_svg", "xz plane · φ = 0° / 180°"),
-                    ("yz", "yz_svg", "yz plane · φ = 90° / 270°"),
-                ]:
-                    with html.Div(classes="cut"):
-                        html.H2(title)
-                        html.Div("Relative field (dB) vs signed θ", classes="note")
-                        html.Div(v_html=(key,))
-            with html.Div(classes="metrics"):
-                html.Div(v_html=("metrics_html",))
-            with html.Div(classes="cut difference"):
-                html.H2("Difference map · right minus left")
-                html.Div(
-                    "Red: right frequency is stronger · Blue: left is stronger. Uses the selected normalization and floor.",
-                    classes="note",
-                )
-                diff_view = PyVistaLocalView(
-                    diff_plotter, style="width:100%;height:300px", namespace="pattern_difference"
-                )
+            with html.Details(open=terrain_panel is None, classes="pattern-details"):
+                html.Summary("Antenna radiation patterns and supporting graphs")
+                html.H2("Radiation pattern comparison", id="patterns")
+                with html.Div(classes="controls"):
+                    for label, key in [
+                        ("Left frequency", "left_index"),
+                        ("Right frequency", "right_index"),
+                    ]:
+                        with html.Label(label):
+                            with html.Select(v_model=(key, state[key]), aria_label=label):
+                                for i, f in enumerate(data.frequency_hz):
+                                    html.Option(f"{f / 1e9:g} GHz", value=str(i))
+                    for label, key, items in [
+                        (
+                            "View",
+                            "display_mode",
+                            [("pattern", "Radiation surface"), ("sphere", "Colored unit sphere")],
+                        ),
+                        (
+                            "Radius scale",
+                            "radial_scale",
+                            [
+                                ("db", "Decibels · reveal weak lobes"),
+                                ("linear", "Linear field amplitude"),
+                            ],
+                        ),
+                        (
+                            "Normalization",
+                            "normalization",
+                            [
+                                ("per_frequency", "Peak at each frequency"),
+                                ("global", "Shared peak across dataset"),
+                            ],
+                        ),
+                        (
+                            "Color floor",
+                            "floor_db",
+                            [
+                                ("-20", "−20 dB"),
+                                ("-30", "−30 dB"),
+                                ("-40", "−40 dB"),
+                                ("-60", "−60 dB"),
+                            ],
+                        ),
+                    ]:
+                        with html.Label(label):
+                            with html.Select(v_model=(key, state[key]), aria_label=label):
+                                for value, text in items:
+                                    html.Option(text, value=value)
+                    html.Button("Reset camera", click=server.controller.reset_camera)
+                    for name in ("front", "back", "side", "isometric"):
+                        html.Button(
+                            name.title(), click=(server.controller.camera_preset, f"['{name}']")
+                        )
+                with html.Div(classes="scene"):
+                    with html.Div(classes="scene-labels"):
+                        html.Div("{{ left_label }}")
+                        html.Div("{{ right_label }}")
+                    view = PyVistaLocalView(viewer.plotter, style="width:100%;height:100%")
                 with html.Div(classes="color-key"):
-                    html.Span("−20 dB or less")
-                    html.Div(classes="difference-ramp")
-                    html.Span("+20 dB or more")
-                html.Div(
-                    "Unit sphere; values outside ±20 dB saturate. Both fields at the floor give zero difference.",
-                    classes="note",
-                )
-            if terrain_panel is not None:
-                html.H2("Optional propagation example")
-                html.Div(
-                    "Synthetic terrain and city coverage demonstrate an approximate propagation "
-                    "layer. They are separate from radiation mesh conversion and are not "
-                    "measurement-validated coverage predictions.", classes="explanation",
-                )
-                terrain_panel.ui()
-            else:
+                    html.Span("{{ floor_label }}")
+                    html.Div(classes="color-ramp")
+                    html.Span("0 dB")
+                html.Div("Drag to rotate · Scroll to zoom · Views share a camera", classes="scene-note")
+                with html.Div(classes="explanation"):
+                    html.Div("{{ reference_note }}")
+                    html.Div(
+                        "{{ radius_note }} Color and cuts: relative electric field in dB, with shared limits."
+                    )
+                with html.Div(classes="legend"):
+                    html.Span("━━ {{ left_label }}", classes="a")
+                    html.Span("━━ {{ right_label }}", classes="b")
+                with html.Div(classes="cuts"):
+                    for plane, key, title in [
+                        ("xz", "xz_svg", "xz plane · φ = 0° / 180°"),
+                        ("yz", "yz_svg", "yz plane · φ = 90° / 270°"),
+                    ]:
+                        with html.Div(classes="cut"):
+                            html.H2(title)
+                            html.Div("Relative field (dB) vs signed θ", classes="note")
+                            html.Div(v_html=(key,))
+                with html.Div(classes="metrics"):
+                    html.Div(v_html=("metrics_html",))
+                with html.Div(classes="cut difference"):
+                    html.H2("Difference map · right minus left")
+                    html.Div(
+                        "Red: right frequency is stronger · Blue: left is stronger. Uses the selected normalization and floor.",
+                        classes="note",
+                    )
+                    diff_view = PyVistaLocalView(
+                        diff_plotter, style="width:100%;height:300px", namespace="pattern_difference"
+                    )
+                    with html.Div(classes="color-key"):
+                        html.Span("−20 dB or less")
+                        html.Div(classes="difference-ramp")
+                        html.Span("+20 dB or more")
+                    html.Div(
+                        "Unit sphere; values outside ±20 dB saturate. Both fields at the floor give zero difference.",
+                        classes="note",
+                    )
+            if terrain_panel is None:
                 with html.Details(classes="terrain-settings"):
                     html.Summary("Optional terrain and city example")
-                    html.P(
-                        "Run pyvista-radiation --coverage to include the illustrative propagation "
-                        "example. Native mesh creation and plotting work independently of it."
-                    )
+                    html.P("Run pyvista-radiation --coverage for the hillside-city showcase.")
             html.Footer(
                 "Saved solver fields remain unchanged. Numerical integration and principal cuts are tested against analytic patterns and independent openEMS outputs."
             )
@@ -291,11 +291,13 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None, c
     return server, viewer
 
 
-def serve(data=None, *, port=8766, terrain=None, coverage=False):
+def serve(data=None, *, port=8766, terrain=None, coverage=False, environment=None):
     """Run a localhost-only comparison app; Ctrl+C stops it."""
-    server, viewer = create_app(data, terrain=terrain, coverage=coverage)
+    server, viewer = create_app(data, terrain=terrain, coverage=coverage, environment=environment)
     try:
-        server.start(host="127.0.0.1", port=port, open_browser=False)
+        # A local interactive demo should survive a hidden/suspended browser tab.
+        # wslink's default idle reaper otherwise exits after five minutes.
+        server.start(host="127.0.0.1", port=port, open_browser=False, timeout=0)
     finally:
         viewer.close()
         if server._terrain_panel is not None:

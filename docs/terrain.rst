@@ -3,8 +3,9 @@ Terrain-aware coverage prototype
 
 This is an optional application example separate from the PyVista radiation
 extension. Launch with ``pyvista-radiation --coverage`` or
-``python examples/coverage_demo.py``. It appears after the radiation comparison;
-the standard browser demo and native APIs work independently of this layer.
+``python examples/coverage_demo.py``. The landscape appears first, with radiation
+graphs and path details in expandable sections. The radiation-only browser demo
+and native APIs work independently of this layer.
 
 The browser viewer includes a terrain section that estimates actual extra
 propagation loss, rather than placing decorative hills around the far-field
@@ -15,6 +16,27 @@ illustrative scenes, not geographic measurements.
 
 City environments
 -----------------
+
+The default coverage showcase is **City · hills, valley & neighborhoods**.
+Select it explicitly with ``pyvista-radiation --environment hillside_city``.
+It spans 2.4 km by 1.8 km, with about 190 buildings over roughly 267 m of elevation
+variation. It combines a winding dry valley, ridges, a tall center, smaller
+neighborhoods, open park districts and draped road ribbons. Building foundations
+extend down to the minimum terrain elevation within their footprints; roofs
+remain above the maximum terrain elevation there, avoiding floating boxes.
+Transmitter presets and inspected receiver plazas are reserved outdoors.
+
+The ground elevations and building roof heights both participate in the existing
+obstruction/diffraction calculation. Roads are decorative context and do not add
+material attenuation. Parkland is reserved open ground; no vegetation or foliage
+propagation is invented. Geometry is deterministic and entirely synthetic.
+
+The **Terrain elevation** map option colors physical ground heights rather than
+received power. Vertical exaggeration remains display-only. **Reset view** frames
+the calculated scene without applying pending control changes.
+Run ``python examples/urban_landscape.py`` to save a native PyVista screenshot;
+``--screenshot path.png`` selects the destination. It requires the browser extra
+for the shared scene builder, but starts no browser or listening server.
 
 Choose **City · low-rise blocks** or **City · downtown towers** in the Environment
 selector. Both contain 80 reproducible building boxes and intersecting streets.
