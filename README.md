@@ -62,6 +62,23 @@ See [importing fields](docs/importing.rst) and the [data contract](docs/data-con
 
 ## Examples and optional browser demo
 
+The larger **material wave lab** expands the actual openEMS domain to
+2.4 × 1.6 × 1 m (20 times the original volume) at 1 GHz. Compare wood, glass,
+brick, concrete, a glass/air/glass stack, a thin resistive sheet, PEC, and air.
+Bulk coefficients use published ITU material-class examples; these are not
+measurements of specific building products.
+
+```sh
+python examples/through_wall.py --materials --browser  # http://127.0.0.1:8768
+python examples/through_wall.py --materials --phase 90 --screenshot preview/material_lab.png
+```
+
+See [the material lab](docs/material-lab.rst) for geometry, assumptions,
+source normalization and reproduction. Viewing uses saved openEMS fields;
+no solver is needed to explore the native PyVista meshes.
+
+![Eight actual openEMS material cases in PyVista](preview/material_lab.png)
+
 An actual openEMS through-wall experiment compares air, a lossy dielectric slab
 and a metal wall. The saved complex fields can be explored in native PyVista
 or in a separate interactive viewer, including a steady-state wave-phase cycle:

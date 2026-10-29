@@ -1,5 +1,13 @@
 # Reproduce the patch reference
 
+For the larger **material wave lab**, run
+`python simulations/run_material_lab.py --build --refine`. It archives eight
+1 GHz material/structure cases in a 2.4 × 1.6 × 1 m domain, with an optional
+air/concrete mesh check. Open the bundled results using
+`python examples/through_wall.py --materials --browser` (port 8768).
+The [material lab documentation](../docs/material-lab.rst) records the ITU
+material-class coefficients, thin-sheet approximation and other assumptions.
+
 For the separate, independently authored **through-wall field experiment**, run
 `python simulations/run_through_wall.py --build`. It compares a fed dipole in
 air, an assumed lossy dielectric wall, and a PEC wall, then performs a finer

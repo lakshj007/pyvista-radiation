@@ -8,6 +8,7 @@ from .nearfield import (
     FieldPlaneData,
     field_plane_mesh,
     load_field_plane,
+    load_material_lab,
     load_through_wall,
     save_field_plane,
 )
@@ -35,6 +36,7 @@ __all__ = [
     "load_field_plane",
     "save_field_plane",
     "load_through_wall",
+    "load_material_lab",
     "RadioTower",
     "NetworkCoverageResult",
     "network_coverage",

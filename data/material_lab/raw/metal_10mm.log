@@ -1,0 +1,35 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 241x161x101 --> 3.9189e+06 FDTD cells 
+FDTD timestep is: 1.92583e-11 s; Nyquist rate: 22 timesteps @1.18013e+09 Hz
+Excitation signal length is: 992 timesteps (1.91043e-08s)
+Max. number of timesteps: 20000 ( --> 20.1613 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:          105 || Speed:  102.3 MC/s (3.832e-02 s/TS) || Energy: ~2.97e-19 (- 0.00dB)
+[@        8s] Timestep:          210 || Speed:  101.9 MC/s (3.845e-02 s/TS) || Energy: ~7.66e-17 (- 0.00dB)
+[@       12s] Timestep:          350 || Speed:  136.6 MC/s (2.868e-02 s/TS) || Energy: ~1.16e-14 (- 0.00dB)
+[@       16s] Timestep:          565 || Speed:  210.4 MC/s (1.862e-02 s/TS) || Energy: ~1.86e-13 (- 0.00dB)
+[@       20s] Timestep:          770 || Speed:  200.6 MC/s (1.954e-02 s/TS) || Energy: ~5.38e-14 (- 5.39dB)
+[@       24s] Timestep:          980 || Speed:  201.3 MC/s (1.947e-02 s/TS) || Energy: ~1.80e-15 (-20.15dB)
+[@       28s] Timestep:         1195 || Speed:  209.1 MC/s (1.875e-02 s/TS) || Energy: ~3.83e-18 (-46.86dB)
+[@       32s] Timestep:         1408 || Speed:  205.5 MC/s (1.907e-02 s/TS) || Energy: ~6.12e-21 (-74.83dB)
+Time for 1408 iterations with 3918901.00 cells : 32.27 sec
+Speed: 170.98 MCells/s 
+THROUGH_WALL_FINISHED metal 10
+error: ignoring const execution_exception& while preparing to exit

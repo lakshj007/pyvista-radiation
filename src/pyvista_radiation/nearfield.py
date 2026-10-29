@@ -92,6 +92,12 @@ def load_through_wall():
         return load_field_plane(path)
 
 
+def load_material_lab():
+    """Load the larger 1 GHz, eight-case openEMS material experiment."""
+    with as_file(files("pyvista_radiation").joinpath("data/material_lab.npz")) as path:
+        return load_field_plane(path)
+
+
 def field_plane_mesh(data, case=0, *, mode="magnitude_db", phase_deg=0, reference=None):
     """Return an ordinary PyVista StructuredGrid with preserved vector phasors.
 

@@ -28,6 +28,7 @@ jobs:
           python examples/urban_landscape.py --screenshot "$RUNNER_TEMP/urban.png"
           python examples/regional_network.py --grid 25 --screenshot "$RUNNER_TEMP/network.png"
           python examples/through_wall.py --phase 90 --screenshot "$RUNNER_TEMP/wall.png"
+          python examples/through_wall.py --materials --phase 90 --screenshot "$RUNNER_TEMP/materials.png"
   package:
     runs-on: ubuntu-latest
     steps:
@@ -40,7 +41,7 @@ jobs:
       - run: pip install dist/*.whl
       - name: Load bundled data outside checkout without optional dependencies
         working-directory: /tmp
-        run: python -c "from pyvista_radiation import load_patch, load_through_wall; assert load_patch().e_theta.shape == (3,37,72); assert load_through_wall().case_names == ('air', 'dielectric', 'metal')"
+        run: python -c "from pyvista_radiation import load_patch, load_through_wall, load_material_lab; assert load_patch().e_theta.shape == (3,37,72); assert load_through_wall().case_names == ('air', 'dielectric', 'metal'); assert len(load_material_lab().case_names) == 8"
       - run: pip install 'pyvista>=0.49'
       - name: Discover installed wheel plotter component outside checkout
         working-directory: /tmp

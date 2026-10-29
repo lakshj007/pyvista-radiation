@@ -1,0 +1,53 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 306x206x129 --> 8.13164e+06 FDTD cells 
+FDTD timestep is: 9.62917e-12 s; Nyquist rate: 45 timesteps @1.1539e+09 Hz
+Excitation signal length is: 1984 timesteps (1.91043e-08s)
+Max. number of timesteps: 20000 ( --> 10.0806 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:          121 || Speed:  210.6 MC/s (3.860e-02 s/TS) || Energy: ~2.78e-20 (- 0.00dB)
+[@        8s] Timestep:          225 || Speed:  207.3 MC/s (3.924e-02 s/TS) || Energy: ~7.01e-19 (- 0.00dB)
+[@       12s] Timestep:          330 || Speed:  206.8 MC/s (3.932e-02 s/TS) || Energy: ~1.21e-17 (- 0.00dB)
+[@       17s] Timestep:          440 || Speed:  216.9 MC/s (3.750e-02 s/TS) || Energy: ~1.50e-16 (- 0.00dB)
+[@       21s] Timestep:          550 || Speed:  212.2 MC/s (3.833e-02 s/TS) || Energy: ~1.21e-15 (- 0.00dB)
+[@       25s] Timestep:          660 || Speed:  223.2 MC/s (3.643e-02 s/TS) || Energy: ~6.74e-15 (- 0.00dB)
+[@       29s] Timestep:          770 || Speed:  221.6 MC/s (3.670e-02 s/TS) || Energy: ~2.68e-14 (- 0.00dB)
+[@       33s] Timestep:          880 || Speed:  213.5 MC/s (3.808e-02 s/TS) || Energy: ~7.43e-14 (- 0.00dB)
+[@       37s] Timestep:          990 || Speed:  219.8 MC/s (3.700e-02 s/TS) || Energy: ~1.42e-13 (- 0.00dB)
+[@       41s] Timestep:         1100 || Speed:  214.8 MC/s (3.785e-02 s/TS) || Energy: ~1.89e-13 (- 0.00dB)
+[@       45s] Timestep:         1199 || Speed:  192.2 MC/s (4.230e-02 s/TS) || Energy: ~1.86e-13 (- 0.09dB)
+[@       49s] Timestep:         1298 || Speed:  199.9 MC/s (4.068e-02 s/TS) || Energy: ~1.47e-13 (- 1.11dB)
+[@       54s] Timestep:         1408 || Speed:  213.3 MC/s (3.813e-02 s/TS) || Energy: ~9.24e-14 (- 3.12dB)
+[@       58s] Timestep:         1496 || Speed:  173.1 MC/s (4.698e-02 s/TS) || Energy: ~5.64e-14 (- 5.26dB)
+[@     1m02s] Timestep:         1606 || Speed:  202.9 MC/s (4.008e-02 s/TS) || Energy: ~2.98e-14 (- 8.04dB)
+[@     1m06s] Timestep:         1716 || Speed:  220.2 MC/s (3.693e-02 s/TS) || Energy: ~1.57e-14 (-10.82dB)
+[@     1m10s] Timestep:         1826 || Speed:  213.1 MC/s (3.816e-02 s/TS) || Energy: ~7.50e-15 (-14.02dB)
+[@     1m15s] Timestep:         1925 || Speed:  191.8 MC/s (4.240e-02 s/TS) || Energy: ~3.28e-15 (-17.62dB)
+[@     1m19s] Timestep:         2035 || Speed:  209.1 MC/s (3.888e-02 s/TS) || Energy: ~9.99e-16 (-22.78dB)
+[@     1m23s] Timestep:         2145 || Speed:  210.8 MC/s (3.857e-02 s/TS) || Energy: ~2.41e-16 (-28.95dB)
+[@     1m27s] Timestep:         2250 || Speed:  209.8 MC/s (3.876e-02 s/TS) || Energy: ~5.61e-17 (-35.28dB)
+[@     1m31s] Timestep:         2365 || Speed:  223.7 MC/s (3.635e-02 s/TS) || Energy: ~1.23e-17 (-41.87dB)
+[@     1m35s] Timestep:         2464 || Speed:  196.3 MC/s (4.142e-02 s/TS) || Energy: ~3.59e-18 (-47.23dB)
+[@     1m40s] Timestep:         2574 || Speed:  216.7 MC/s (3.752e-02 s/TS) || Energy: ~9.86e-19 (-52.84dB)
+[@     1m44s] Timestep:         2684 || Speed:  211.2 MC/s (3.851e-02 s/TS) || Energy: ~2.71e-19 (-58.44dB)
+[@     1m48s] Timestep:         2794 || Speed:  219.6 MC/s (3.703e-02 s/TS) || Energy: ~7.75e-20 (-63.88dB)
+Time for 2794 iterations with 8131644.00 cells : 108.42 sec
+Speed: 209.56 MCells/s 
+THROUGH_WALL_FINISHED concrete 8
+error: ignoring const execution_exception& while preparing to exit
