@@ -369,11 +369,35 @@ class TerrainPanel:
                 self.view = PyVistaLocalView(
                     self.plotter, namespace="terrain_coverage", style="width:100%;height:100%"
                 )
+            with html.Div(classes="terrain-camera-controls"):
+                # Read the browser camera so zoom preserves local rotation and pan.
+                # Pushing the Python camera here would restore its stale pose.
+                for label, factor in (("+ Zoom in", 1.5), ("− Zoom out", 1 / 1.5)):
+                    html.Button(
+                        label,
+                        click=(
+                            f"() => {{ const view = trame.refs['{self.view.ref_name}']; "
+                            "const camera = view.getCamera(); "
+                            f"const factor = {factor}; "
+                            "view.setCamera({ ...camera, "
+                            "parallelScale: camera.parallelScale / factor, "
+                            "position: camera.parallelProjection ? camera.position : "
+                            "camera.position.map((v, i) => "
+                            "camera.focalPoint[i] + (v - camera.focalPoint[i]) / factor) "
+                            "}); }"
+                        ),
+                        type="button",
+                    )
+                html.Button("Reset view", click=self.reset_view, type="button")
             with html.Div(classes="color-key"):
                 html.Span("{{ terrain_low }}")
                 html.Div(classes=("terrain_key_class",))
                 html.Span("{{ terrain_high }}")
-            html.Div("Drag to explore · scroll to zoom · gold marker is the transmitter", classes="note")
+            html.Div(
+                "Drag to rotate · scroll or right-drag to zoom · Shift-drag to pan. "
+                "Zoom buttons also work without a mouse. Gold marks the transmitter.",
+                classes="note",
+            )
             html.Div("{{ terrain_applied }}", classes="note")
             items = [
                 (
@@ -473,7 +497,6 @@ class TerrainPanel:
                         if key not in primary:
                             control(label, key, options)
             html.Button("Calculate coverage", click=self.calculate, classes="calculate-coverage")
-            html.Button("Reset view", click=self.reset_view)
             html.Div("Change settings, then calculate to apply them.", classes="note")
             html.Div("{{ terrain_environment_note }}", classes="explanation")
             html.Div(

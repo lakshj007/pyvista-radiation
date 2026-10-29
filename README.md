@@ -88,6 +88,11 @@ pyvista-radiation --native         # native frequency comparison
 pyvista-radiation --coverage       # city-first hillside showcase
 ```
 
+In the city view, drag to rotate, Shift-drag to pan, and scroll or right-drag
+to zoom. The **Zoom in** and **Zoom out** buttons below the model work with
+a trackpad or keyboard and preserve your viewing angle. **Reset view** restores
+the overview without recalculating coverage.
+
 For notebooks, install ``pip install -e '.[notebook]'`` into your kernel
 environment and open [the notebook walkthrough](examples/pyvista_extension.ipynb).
 It uses PyVista's interactive trame backend; a notebook editor is supplied by
