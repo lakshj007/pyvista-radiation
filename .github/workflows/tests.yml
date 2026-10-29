@@ -26,6 +26,7 @@ jobs:
           python examples/pyvista_extension.py --screenshot "$RUNNER_TEMP/radiation.png"
           python examples/user_arrays.py --screenshot "$RUNNER_TEMP/dipole.png"
           python examples/urban_landscape.py --screenshot "$RUNNER_TEMP/urban.png"
+          python examples/regional_network.py --grid 25 --screenshot "$RUNNER_TEMP/network.png"
   package:
     runs-on: ubuntu-latest
     steps:

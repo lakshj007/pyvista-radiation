@@ -13,6 +13,7 @@ ENVIRONMENTS = (
     ("city", "City · low-rise blocks"),
     ("downtown", "City · downtown towers"),
     ("hillside_city", "City · hills, valley & neighborhoods"),
+    ("metro_network", "Region · 7 × 7 km, five radio towers"),
 )
 
 
@@ -35,6 +36,14 @@ def environment_roads(kind):
     The same corridors reserve building-free space in the hillside preset.
     Road materials/thickness do not contribute propagation losses.
     """
+    if kind == "metro_network":
+        axis = np.linspace(-3500, 3500, 161)
+        roads = []
+        for offset in (-2600, -1300, 0, 1300, 2600):
+            roads.append((np.column_stack([axis, np.full_like(axis, offset)]), 26))
+            roads.append((np.column_stack([np.full_like(axis, offset), axis]), 24))
+        roads.append((np.column_stack([axis, 370 * np.sin(axis / 1000) + 650]), 36))
+        return tuple(roads)
     if kind != "hillside_city":
         return ()
     x = np.linspace(-1200, 1200, 161)
@@ -54,9 +63,9 @@ def environment_roads(kind):
     return tuple(roads)
 
 
-def _near_road(x, y, margin):
+def _near_road(x, y, margin, kind="hillside_city"):
     """Conservative exact segment intersection with an expanded footprint."""
-    for points, width in environment_roads("hillside_city"):
+    for points, width in environment_roads(kind):
         low = np.array([np.min(x), np.min(y)]) - width / 2 - margin
         high = np.array([np.max(x), np.max(y)]) + width / 2 + margin
         start = points[:-1]
@@ -129,6 +138,55 @@ def _hillside_city(nx, ny):
     return terrain, tuple(buildings)
 
 
+def _metro_network(nx, ny):
+    """A 49 km² region with distinct towns separated by open hills and valleys."""
+    from .network import metro_towers
+
+    synthetic_terrain("flat", nx, ny)  # validate grid dimensions
+    x, y = np.linspace(-3500, 3500, nx), np.linspace(-3500, 3500, ny)
+    xx, yy = np.meshgrid(x, y)
+    valley = xx - (450 * np.sin(yy / 1250) + 200)
+    z = (
+        45 + 35 * (1 + np.sin(xx / 700) * np.cos(yy / 800))
+        + 480 * np.exp(-((xx + 2600) / 750) ** 2 - ((yy + 650) / 2200) ** 2)
+        + 650 * np.exp(-((xx - 2700) / 950) ** 2 - ((yy - 2200) / 1400) ** 2)
+        + 290 * np.exp(-((xx - 900) / 1600) ** 2 - ((yy + 2800) / 650) ** 2)
+        + 160 * np.exp(-((xx + 1200) / 900) ** 2 - ((yy - 2700) / 800) ** 2)
+    ) * (1 - 0.55 * np.exp(-(valley / 350) ** 2))
+    terrain = TerrainGrid(x, y, z,
+                          "Synthetic regional network · cities, hills and dry valley "
+                          "(illustrative; 7 × 7 km; 49 km²; metres)")
+    rng = np.random.default_rng(71)
+    buildings = []
+    reserved = [(t.x_m, t.y_m) for t in metro_towers()]
+    reserved += [(-2800, 0), (0, 0), (2800, 0), (-1400, 0),
+                 (2625, 2625), (2625, -2625)]
+    for cx in np.arange(-3250, 3251, 115):
+        for cy in np.arange(-3250, 3251, 115):
+            urban = max(
+                np.exp(-((cx / 1300) ** 2) - (cy / 1350) ** 2),
+                0.85 * np.exp(-((cx + 1750) / 950) ** 2 - ((cy - 1950) / 850) ** 2),
+                0.85 * np.exp(-((cx - 1800) / 1000) ** 2 - ((cy + 1650) / 900) ** 2),
+            )
+            if rng.random() > 0.08 + 0.92 * urban:
+                continue
+            bx, by = cx + rng.uniform(-15, 15), cy + rng.uniform(-15, 15)
+            width, depth = rng.uniform(38, 78, 2)
+            xmin, xmax, ymin, ymax = bx - width / 2, bx + width / 2, by - depth / 2, by + depth / 2
+            if _near_road([xmin, xmax], [ymin, ymax], 12, "metro_network"):
+                continue
+            if any(xmin - 100 < px < xmax + 100 and ymin - 100 < py < ymax + 100
+                   for px, py in reserved):
+                continue
+            fx, fy = np.meshgrid(np.r_[xmin, x[(x > xmin) & (x < xmax)], xmax],
+                                 np.r_[ymin, y[(y > ymin) & (y < ymax)], ymax])
+            ground = terrain.sample(fx, fy)
+            height = rng.uniform(9, 32) + 200 * np.exp(-((bx / 650) ** 2) - (by / 700) ** 2)
+            buildings.append(Building(xmin, xmax, ymin, ymax,
+                                      float(ground.min()) - 1, float(ground.max()) + height))
+    return terrain, tuple(buildings)
+
+
 def synthetic_environment(kind="ridge", nx=81, ny=61):
     """Return ground terrain and opaque building boxes; all coordinates in metres.
 
@@ -138,6 +196,8 @@ def synthetic_environment(kind="ridge", nx=81, ny=61):
     """
     if kind == "hillside_city":
         return _hillside_city(nx, ny)
+    if kind == "metro_network":
+        return _metro_network(nx, ny)
     if kind not in ("city", "downtown"):
         return synthetic_terrain(kind, nx, ny), ()
     # Reuse grid validation, then crop the flat ground to a neighborhood scale.

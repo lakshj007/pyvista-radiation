@@ -477,8 +477,23 @@ def coverage_map(
     gain = fspl.copy()
     los = np.zeros(len(xy), bool)
     angle = np.zeros(len(xy), bool)
+    # Exact vectorized slab filtering keeps regional multi-tower scenes practical.
+    # Narrow roof crossings are still inserted by path_profile; this only removes
+    # boxes the horizontal segment cannot reach.
+    lower = np.array([(b.xmin, b.ymin) for b in buildings], dtype=float).reshape(-1, 2)
+    upper = np.array([(b.xmax, b.ymax) for b in buildings], dtype=float).reshape(-1, 2)
     for k in np.flatnonzero(valid):
         rx = np.r_[xy[k], z[k]]
+        path_buildings = buildings
+        if buildings:
+            delta = xy[k] - tx[:2]
+            moving = delta != 0
+            a = np.divide(lower - tx[:2], delta, out=np.full_like(lower, -np.inf), where=moving)
+            b = np.divide(upper - tx[:2], delta, out=np.full_like(upper, np.inf), where=moving)
+            miss = np.any(~moving & ((tx[:2] < lower) | (tx[:2] > upper)), axis=1)
+            enter = np.maximum(0, np.max(np.minimum(a, b), axis=1))
+            leave = np.minimum(1, np.min(np.maximum(a, b), axis=1))
+            path_buildings = tuple(buildings[i] for i in np.flatnonzero(~miss & (enter <= leave)))
         profile = path_profile(
             terrain,
             tx,
@@ -486,7 +501,7 @@ def coverage_map(
             f,
             sample_spacing_m=sample_spacing_m,
             effective_earth_radius_m=effective_earth_radius_m,
-            buildings=buildings,
+            buildings=path_buildings,
         )
         loss[k] = profile.diffraction_db if diffraction else 0
         los[k] = profile.line_of_sight

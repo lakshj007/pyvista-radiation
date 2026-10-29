@@ -86,12 +86,23 @@ pyvista-radiation                  # radiation comparison at http://127.0.0.1:87
 pyvista-radiation results.npz      # your saved dataset
 pyvista-radiation --native         # native frequency comparison
 pyvista-radiation --coverage       # city-first hillside showcase
+pyvista-radiation --environment metro_network  # 7 × 7 km, five radio towers
 ```
 
 In the city view, drag to rotate, Shift-drag to pan, and scroll or right-drag
 to zoom. The **Zoom in** and **Zoom out** buttons below the model work with
 a trackpad or keyboard and preserve your viewing angle. **Reset view** restores
 the overview without recalculating coverage.
+
+The regional example has about 700 buildings, hills and three town centers.
+Compare the strongest of five towers with individual-tower maps, or color the
+ground by the strongest tower. Each link includes approximate terrain/roof
+obstruction; the combined map shows maximum received power, without modeling
+interference. The five reference antennas are omnidirectional.
+Run `python examples/regional_network.py` for the same landscape in native
+PyVista, or add `--screenshot preview/regional_network.png` for a saved figure.
+
+![Seven-kilometre regional network in native PyVista](preview/regional_network.png)
 
 For notebooks, install ``pip install -e '.[notebook]'`` into your kernel
 environment and open [the notebook walkthrough](examples/pyvista_extension.ipynb).

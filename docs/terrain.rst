@@ -17,6 +17,61 @@ illustrative scenes, not geographic measurements.
 City environments
 -----------------
 
+Regional five-tower example
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Launch ``pyvista-radiation --environment metro_network`` for a **7 km by 7 km**
+region (49 km²), with five radio towers, about 700 buildings, three town centers,
+open hills, a winding dry valley and roads. The browser samples outdoor reception
+on a 101 by 101 grid (70 m spacing). Buildings have explicit footprints and roof
+heights, including those smaller than a grid cell; fine terrain features absent
+from the elevation grid are not recovered by interpolation.
+
+The default towers are 60 m above their own local ground, each transmitting
+40 dBm at 2.4 GHz with an **omnidirectional 0 dBi reference antenna**. This
+regional example does not use the bundled directional patch pattern. Power,
+height, frequency and receiver-height controls apply to all five towers.
+The defaults are illustrative equipment assumptions, not a deployment design.
+
+**Coverage shown** selects the strongest of all five towers or an individual
+tower's independent map. **Strongest tower · colored regions** identifies which
+tower supplies the highest estimated received power at each sampled location;
+its colors match the tower markers and legend. Terrain loss and sight-line
+maps show the corresponding winning link, or the selected individual tower.
+The gold inspected path uses the strongest tower at the nearest grid sample
+to the chosen receiver, or the explicitly selected tower. Ground rings locate
+sites and lattice masts show antenna height; spherical markers are enlarged.
+
+Signals are **not added together**. This is strongest-server received power,
+not interference, SINR, throughput, capacity or a handover simulation. Every
+individual link retains the same approximate terrain/roof model described below.
+Maps are cached when only display settings or the selected tower change.
+
+The same example works directly in native PyVista, without trame::
+
+   python examples/regional_network.py
+   python examples/regional_network.py --screenshot preview/regional_network.png
+   python examples/regional_network.py --map serving --grid 141 --save-data network.npz
+
+The numerical API supports explicit per-tower settings::
+
+   from pyvista_radiation import RadioTower, network_coverage, synthetic_environment
+   terrain, buildings = synthetic_environment('metro_network', nx=101, ny=101)
+   towers = [RadioTower('West', -2450, -1750, height_m=60, power_dbm=40),
+             RadioTower('Center', 0, 0, height_m=90, power_dbm=37)]
+   network = network_coverage(terrain, 2.4e9, towers, buildings=buildings)
+   power = network.strongest.received_dbm
+   server = network.serving_index  # tower index, -1 where all links are invalid
+   network.save('network.npz')
+
+Saved network arrays include each tower's received power, the strongest received
+power, validity, grid elevations, tower identities and stated model assumptions.
+Adding a tower can improve the strongest-power map, but this model cannot predict
+the interference that an additional co-channel transmitter could create.
+
+Neighborhood examples
+~~~~~~~~~~~~~~~~~~~~~
+
 The default coverage showcase is **City · hills, valley & neighborhoods**.
 Select it explicitly with ``pyvista-radiation --environment hillside_city``.
 It spans 2.4 km by 1.8 km, with about 190 buildings over roughly 267 m of elevation

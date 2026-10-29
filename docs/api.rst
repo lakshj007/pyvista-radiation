@@ -65,6 +65,15 @@ Terrain and coverage
 .. autofunction:: pyvista_radiation.save_terrain
 .. autofunction:: pyvista_radiation.coverage_map
 
+.. autoclass:: pyvista_radiation.RadioTower
+   :members:
+
+.. autoclass:: pyvista_radiation.NetworkCoverageResult
+   :members:
+
+.. autofunction:: pyvista_radiation.network_coverage
+.. autofunction:: pyvista_radiation.metro_towers
+
 .. autofunction:: pyvista_radiation.terrain.path_profile
 .. autofunction:: pyvista_radiation.terrain.free_space_loss
 .. autofunction:: pyvista_radiation.terrain.knife_edge_loss

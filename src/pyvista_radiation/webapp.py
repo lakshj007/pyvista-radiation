@@ -24,6 +24,7 @@ button{cursor:pointer}select:focus-visible,button:focus-visible{outline:3px soli
 .metrics{margin:18px 0}.metrics table{width:100%;border-collapse:collapse;text-align:left;font:13px ui-monospace,monospace}.metrics th,.metrics td{padding:10px;border-bottom:1px solid #cad7e0}.metrics caption{text-align:left;margin-bottom:10px;font:16px Georgia,serif}.difference-ramp{height:10px;flex:1;background:linear-gradient(90deg,#3b4cc0,#ddd,#b40426)}.difference{margin-top:18px}.a{color:#1574b8}.b{color:#cb5b32}.summary{font:13px ui-monospace,monospace;padding-top:14px}footer{padding:18px 0;color:#526674;font-size:12px}
 .pattern-details>summary{cursor:pointer;font-size:17px;margin:18px 0;color:#1574b8}.terrain-panel{margin:20px 0}.terrain-error{margin:12px 0;padding:12px;background:#fff0e8;color:#8a3e1e;border:1px solid #d9a88a}.terrain-settings{margin:6px 0 14px}.terrain-settings summary{cursor:pointer;color:#1574b8;font-size:14px}.calculate-coverage{background:#1574b8;color:white;margin-bottom:8px}.terrain-panel h2{font:24px Georgia,serif}.terrain-scene{height:470px;background:#132d40;margin-top:14px;border-radius:5px;overflow:hidden}.terrain-profile svg{width:100%;font:12px Arial;fill:#526674}.terrain-ramp-received{height:10px;flex:1;background:linear-gradient(90deg,#440154,#3b528b,#21918c,#5ec962,#fde725)}.terrain-ramp-diffraction{height:10px;flex:1;background:linear-gradient(90deg,#000004,#721f81,#f1605d,#fcfdbf)}.terrain-ramp-elevation{height:10px;flex:1;background:linear-gradient(90deg,#000,#006b61,#a2b34f,#c9b99d,#fff)}.terrain-ramp-los{height:10px;flex:1;background:linear-gradient(90deg,#a50026,#ffffbf,#006837)}
 .terrain-camera-controls{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.terrain-camera-controls button{margin:0;min-height:40px}
+.terrain-region{height:640px}.tower-legend{display:flex;flex-wrap:wrap;gap:8px 18px;font:12px Arial;margin:6px 0}.tower-legend span{display:inline-flex;align-items:center;gap:6px}.tower-legend i{display:inline-block;width:12px;height:12px;border-radius:50%;border:1px solid #526674}
 @media(max-width:760px){.terrain-scene{height:300px}.app{padding:14px}header{display:block}h1{font-size:29px}.cuts{grid-template-columns:1fr}.scene{height:340px}.controls{gap:10px}.scene-labels{font-size:19px}}
 """
 
@@ -120,8 +121,7 @@ def create_app(data=None, *, server_name="radiation-comparison", terrain=None, c
                           if terrain_panel is not None else
                           "A PyVista extension · antenna radiation visualization and analysis")
             html.Div(
-                "Explore synthetic cities and landscapes. Move the transmitter "
-                "or change its height to compare illustrative signal shadows."
+                "{{ terrain_intro }}"
                 if terrain_panel is not None else
                 "Explore native PyVista radiation meshes from saved complex far fields. "
                 "This browser page demonstrates the Python library; no solver is needed.",

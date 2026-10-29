@@ -4,6 +4,7 @@ from .environments import synthetic_environment
 from .mesh import difference_mesh, radiation_mesh
 from .metrics import beamwidth, half_power_beamwidth, pattern_difference
 from .model import RadiationData, load, save
+from .network import NetworkCoverageResult, RadioTower, metro_towers, network_coverage
 from .numerics import amplitude_db, directivity, power_db, principal_cut, spherical_directions
 from .plotting import RadiationViewer, compare_patterns, plot_pattern
 from .readers import from_arrays, load_csv
@@ -22,6 +23,10 @@ __all__ = [
     "from_arrays",
     "load_csv",
     "Building",
+    "RadioTower",
+    "NetworkCoverageResult",
+    "network_coverage",
+    "metro_towers",
     "synthetic_environment",
     "TerrainGrid",
     "coverage_map",

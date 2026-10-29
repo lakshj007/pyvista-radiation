@@ -3,6 +3,7 @@
 import numpy as np
 
 from .environments import ENVIRONMENTS, environment_roads, synthetic_environment
+from .network import TOWER_COLORS, RadioTower, metro_towers, network_coverage
 from .terrain import coverage_map, path_profile
 
 
@@ -41,7 +42,34 @@ def road_meshes(terrain, kind, vertical_exaggeration=1):
     return meshes
 
 
-def terrain_mesh(terrain, result, *, quantity="received", vertical_exaggeration=1):
+def tower_mesh(terrain, xyz, vertical_exaggeration=1):
+    """A simple three-legged lattice mast, with its actual antenna height."""
+    import pyvista as pv
+
+    x, y, top = xyz
+    base = float(terrain.sample(x, y))
+    height = top - base
+    if height <= 0:
+        raise ValueError("tower top must be above ground")
+    levels = np.linspace(0, height, max(3, int(height / 12) + 1))
+    points = []
+    for level in levels:
+        width = 2 + 0.11 * (height - level)
+        for angle in np.linspace(0, 2 * np.pi, 4)[:-1]:
+            px, py = x + width * np.cos(angle), y + width * np.sin(angle)
+            # Foundations extend to local ground, including sloping sites.
+            z = float(terrain.sample(px, py)) if level == 0 else base + level
+            points.append([px, py, z * vertical_exaggeration])
+    edges = []
+    for i in range(len(levels) - 1):
+        for leg in range(3):
+            here, next_leg = 3 * i + leg, 3 * i + (leg + 1) % 3
+            edges.extend([[2, here, here + 3], [2, here, next_leg + 3], [2, here, next_leg]])
+    return pv.PolyData(np.array(points), lines=np.array(edges))
+
+
+def terrain_mesh(terrain, result, *, quantity="received", vertical_exaggeration=1,
+                 serving_index=None):
     """Create a colored terrain surface; vertical exaggeration affects display only."""
     import pyvista as pv
 
@@ -58,6 +86,11 @@ def terrain_mesh(terrain, result, *, quantity="received", vertical_exaggeration=
         ),
         "elevation": (terrain.elevation_m, "Ground elevation (m)"),
     }
+    if serving_index is not None:
+        if np.shape(serving_index) != terrain.elevation_m.shape:
+            raise ValueError("serving_index must match the terrain shape")
+        options["serving"] = (np.where(serving_index >= 0, serving_index, np.nan),
+                              "Strongest tower (index)")
     if quantity not in options:
         raise ValueError("quantity must be received, diffraction, los or elevation")
     values, name = options[quantity]
@@ -125,24 +158,28 @@ class TerrainPanel:
         self.plotter.add_axes(color="white")
         self.mesh = None
         self.result = None
+        self.network = None
+        self.network_key = None
         self.unavailable = not np.any(data.field_magnitude > 0)
         self.actor = None
         self.view = None
         self.context_meshes = []
         s = server.state
+        s.terrain_intro = "Explore synthetic cities and landscapes. Move the transmitter or change its height to compare illustrative signal shadows."
         defaults = dict(
             kind=initial_kind,
             position="west",
             frequency=1 if len(data.frequency_hz) > 1 else 0,
-            tx_height=30,
+            tx_height=60 if initial_kind == "metro_network" else 30,
             rx_height=2,
-            power=30,
+            power=40 if initial_kind == "metro_network" else 30,
             peak_gain=0,
             heading=0,
             elevation=0,
             model="diffraction",
             quantity="received",
-            exaggeration=1 if initial_kind == "hillside_city" else 3,
+            exaggeration=1 if initial_kind in ("hillside_city", "metro_network") else 3,
+            network_view="all",
             receiver="far",
             threshold=-90,
         )
@@ -196,33 +233,51 @@ class TerrainPanel:
         s = self.server.state
         scene_key = "custom" if self.custom_terrain is not None else s.terrain_kind
         reset = reset or getattr(self, "scene_key", None) != scene_key
+        metro = scene_key == "metro_network"
         if self.custom_terrain is not None:
             self.terrain, self.buildings = self.custom_terrain, ()
+        elif metro:
+            self.terrain, self.buildings = synthetic_environment(s.terrain_kind, nx=101, ny=101)
         else:
             self.terrain, self.buildings = synthetic_environment(s.terrain_kind)
         t = self.terrain
         position = {"west": 0.1, "center": 0.5, "east": 0.9}[s.terrain_position]
         self.tx_xy = (t.x_m[0] + position * np.ptp(t.x_m), (t.y_m[0] + t.y_m[-1]) / 2)
         self.index = int(s.terrain_frequency)
-        self.result = coverage_map(
-            t,
-            self.data.frequency_hz[self.index],
-            tx_xy=self.tx_xy,
-            tx_height_m=float(s.terrain_tx_height),
+        common = dict(
             rx_height_m=float(s.terrain_rx_height),
-            tx_power_dbm=float(s.terrain_power),
-            tx_peak_gain_dbi=float(s.terrain_peak_gain),
-            pattern=self.data,
-            pattern_index=self.index,
-            heading_deg=float(s.terrain_heading),
-            elevation_deg=float(s.terrain_elevation),
             diffraction=s.terrain_model == "diffraction",
             buildings=self.buildings,
         )
+        if metro:
+            self.towers = tuple(
+                RadioTower(tower.name, tower.x_m, tower.y_m, float(s.terrain_tx_height),
+                           float(s.terrain_power), 0)
+                for tower in metro_towers()
+            )
+            key = (self.index, float(s.terrain_tx_height), float(s.terrain_rx_height),
+                   float(s.terrain_power), s.terrain_model)
+            if self.network is None or self.network_key != key:
+                self.network = network_coverage(t, self.data.frequency_hz[self.index],
+                                                self.towers, **common)
+                self.network_key = key
+            self.result = (self.network.strongest if s.terrain_network_view == "all"
+                           else self.network.links[int(s.terrain_network_view)])
+        else:
+            self.result = coverage_map(
+                t, self.data.frequency_hz[self.index], tx_xy=self.tx_xy,
+                tx_height_m=float(s.terrain_tx_height), tx_power_dbm=float(s.terrain_power),
+                tx_peak_gain_dbi=float(s.terrain_peak_gain), pattern=self.data,
+                pattern_index=self.index, heading_deg=float(s.terrain_heading),
+                elevation_deg=float(s.terrain_elevation), **common,
+            )
+        if s.terrain_quantity == "serving" and (not metro or s.terrain_network_view != "all"):
+            s.terrain_quantity = "received"
         self.scene_key = scene_key
         scale = float(s.terrain_exaggeration)
         self.mesh = terrain_mesh(
-            t, self.result, quantity=s.terrain_quantity, vertical_exaggeration=scale
+            t, self.result, quantity=s.terrain_quantity, vertical_exaggeration=scale,
+            serving_index=self.network.serving_index if metro else None,
         )
         name = self.mesh.active_scalars_name
         clim, cmap = (
@@ -230,6 +285,7 @@ class TerrainPanel:
                 "received": ((-120, -40), "viridis"),
                 "diffraction": ((0, 50), "magma"),
                 "los": ((0, 1), "RdYlGn"),
+                "serving": ((-0.5, 4.5), list(TOWER_COLORS)),
                 "elevation": ((float(t.elevation_m.min()),
                                max(float(t.elevation_m.max()), float(t.elevation_m.min()) + 1)),
                               "gist_earth"),
@@ -268,21 +324,37 @@ class TerrainPanel:
                 self.context_actor_names.append(name)
                 self.plotter.add_mesh(road, color="#364857", name=name, reset_camera=False,
                                      show_scalar_bar=False, lighting=False)
-        xyz = np.array(self.result.metadata["tx_xyz_m"])
-        ground = float(t.sample(*self.tx_xy))
-        self.plotter.add_mesh(
-            pv.Line([xyz[0], xyz[1], ground * scale], [xyz[0], xyz[1], xyz[2] * scale]),
-            color="#ffffff",
-            line_width=6,
-            name="transmitter_mast",
-            reset_camera=False,
-        )
-        self.plotter.add_mesh(
-            pv.Sphere(radius=0.007 * np.ptp(t.x_m), center=[xyz[0], xyz[1], xyz[2] * scale]),
-            color="#fdc85c",
-            name="transmitter",
-            reset_camera=False,
-        )
+        for name in getattr(self, "tower_actor_names", []):
+            self.plotter.remove_actor(name, reset_camera=False, render=False)
+        self.tower_actor_names = []
+        tower_xyz = ([link.metadata["tx_xyz_m"] for link in self.network.links] if metro
+                     else [self.result.metadata["tx_xyz_m"]])
+        for i, point in enumerate(tower_xyz):
+            xyz = np.array(point)
+            ground = float(t.sample(*xyz[:2]))
+            color = TOWER_COLORS[i] if metro else "#fdc85c"
+            mast = (tower_mesh(t, xyz, scale) if metro else
+                    pv.Line([*xyz[:2], ground * scale], [*xyz[:2], xyz[2] * scale]))
+            beacon = pv.Sphere(radius=(25 if metro else 0.007 * np.ptp(t.x_m)),
+                               center=[*xyz[:2], xyz[2] * scale])
+            for suffix, mesh, options in (
+                ("mast", mast, dict(color="white", line_width=6)),
+                ("marker", beacon, dict(color=color)),
+            ):
+                name = f"tower_{i}_{suffix}"
+                self.context_meshes.append(mesh)
+                self.tower_actor_names.append(name)
+                self.plotter.add_mesh(mesh, name=name, reset_camera=False, **options)
+            if metro:
+                # Ground halos locate towers even when their masts sit behind a hill.
+                angles = np.linspace(0, 2 * np.pi, 65)
+                hx, hy = xyz[0] + 110 * np.cos(angles), xyz[1] + 110 * np.sin(angles)
+                halo = pv.lines_from_points(np.column_stack([hx, hy, (t.sample(hx, hy) + 3) * scale]))
+                name = f"tower_{i}_halo"
+                self.context_meshes.append(halo)
+                self.tower_actor_names.append(name)
+                self.plotter.add_mesh(halo, color=color, line_width=4, lighting=False,
+                                      name=name, reset_camera=False)
         fraction = {
             "far": (0.9, 0.5),
             "near": (0.3, 0.5),
@@ -299,6 +371,18 @@ class TerrainPanel:
         if position == 0.5 and s.terrain_receiver == "near":
             fraction = (0.3, 0.5)
         rx_xy = (t.x_m[0] + fraction[0] * np.ptp(t.x_m), t.y_m[0] + fraction[1] * np.ptp(t.y_m))
+        inspected_name = ""
+        if metro:
+            if s.terrain_network_view == "all":
+                ix, iy = np.argmin(abs(t.x_m - rx_xy[0])), np.argmin(abs(t.y_m - rx_xy[1]))
+                chosen = max(0, int(self.network.serving_index[iy, ix]))
+            else:
+                chosen = int(s.terrain_network_view)
+            xyz = np.array(tower_xyz[chosen])
+            inspected_name = self.towers[chosen].name + " · "
+            self.tx_xy = tuple(xyz[:2])
+        else:
+            xyz = np.array(tower_xyz[0])
         rx = np.r_[rx_xy, float(t.sample(*rx_xy)) + float(s.terrain_rx_height)]
         profile = path_profile(t, xyz, rx, self.data.frequency_hz[self.index], buildings=self.buildings)
         self.plotter.add_mesh(
@@ -320,8 +404,14 @@ class TerrainPanel:
         ) / max(1, np.count_nonzero(valid))
         s.terrain_status = f"{100 * covered:.1f}% of sampled outdoor receivers above {float(s.terrain_threshold):g} dBm · {100 * np.mean(self.result.line_of_sight[valid]):.1f}% clear sight lines"
         s.terrain_source = t.source
+        s.terrain_intro = (
+            "Explore a 7 × 7 km region. Compare five radio towers across cities, hills and valleys."
+            if metro else
+            "Explore synthetic cities and landscapes. Move the transmitter or change its height to compare illustrative signal shadows."
+        )
+        s.terrain_scene_class = "terrain-scene terrain-region" if metro else "terrain-scene"
         s.terrain_profile_svg = profile_svg(profile)
-        s.terrain_path_note = f"Inspected path: {profile.distance_m[-1]:.0f} m · {'Clear sight line' if profile.line_of_sight else 'Terrain or buildings block direct sight line'} · dominant-edge loss {profile.diffraction_db:.1f} dB"
+        s.terrain_path_note = f"Inspected path: {inspected_name}{profile.distance_m[-1]:.0f} m · {'Clear sight line' if profile.line_of_sight else 'Terrain or buildings block direct sight line'} · dominant-edge loss {profile.diffraction_db:.1f} dB"
         s.terrain_applied = f"Calculated at {self.data.frequency_hz[self.index] / 1e9:g} GHz · Tx {float(s.terrain_power):g} dBm · assumed peak gain {float(s.terrain_peak_gain):g} dBi · Rx gain 0 dBi · Tx/Rx heights {float(s.terrain_tx_height):g}/{float(s.terrain_rx_height):g} m above ground"
         s.terrain_model_note = (
             "Terrain and rooftop diffraction included."
@@ -335,11 +425,39 @@ class TerrainPanel:
             if self.buildings else
             "Synthetic landscape; ground colors show estimated reception above local ground. Multiple ridges are reduced to one dominant obstacle per path."
         )
+        s.terrain_network_note = ""
+        s.terrain_tower_legend = ""
+        if metro:
+            selected = ("Strongest of all five towers" if s.terrain_network_view == "all"
+                        else "Only tower " + self.towers[int(s.terrain_network_view)].name)
+            s.terrain_network_note = (
+                f"{selected} · 49 km² · {len(self.buildings)} buildings · 70 m receiver grid. "
+                "Each tower uses an omnidirectional reference antenna. "
+                "The network selects the strongest signal; signals are not added. "
+                "Interference, data rate and handover are not modeled."
+            )
+            s.terrain_tower_legend = "".join(
+                f'<span><i style="background:{color}"></i>{tower.name}</span>'
+                for tower, color in zip(self.towers, TOWER_COLORS)
+            )
+            s.terrain_environment_note = (
+                "Colored markers and ground rings locate five radio towers. "
+                "Pale buildings and uneven ground obstruct the individual radio links. "
+                "The gold line inspects one tower-to-receiver path. Roads are visual context."
+            )
+            s.terrain_applied = (
+                f"{self.data.frequency_hz[self.index] / 1e9:g} GHz · each tower: "
+                f"{float(s.terrain_power):g} dBm, 0 dBi reference gain, "
+                f"{float(s.terrain_tx_height):g} m above ground · receiver: "
+                f"{float(s.terrain_rx_height):g} m above ground"
+            )
+            self.mesh.field_data["Tower names"] = [tower.name for tower in self.towers]
         labels = {
             "received": ("-120 dBm or less", "-40 dBm or more"),
             "diffraction": ("0 dB", "50 dB or more"),
             "los": ("Blocked", "Clear"),
             "elevation": (f"{t.elevation_m.min():.0f} m", f"{t.elevation_m.max():.0f} m"),
+            "serving": ("Tower A", "Tower E"),
         }
         s.terrain_low, s.terrain_high = labels[s.terrain_quantity]
         s.terrain_key_class = "terrain-ramp-" + s.terrain_quantity
@@ -365,7 +483,7 @@ class TerrainPanel:
             if self.unavailable or self.result is None:
                 return
             html.Div("{{ terrain_source }}", classes="note")
-            with html.Div(classes="terrain-scene"):
+            with html.Div(classes=("terrain_scene_class",)):
                 self.view = PyVistaLocalView(
                     self.plotter, namespace="terrain_coverage", style="width:100%;height:100%"
                 )
@@ -389,16 +507,18 @@ class TerrainPanel:
                         type="button",
                     )
                 html.Button("Reset view", click=self.reset_view, type="button")
-            with html.Div(classes="color-key"):
+            html.Div(v_html=("terrain_tower_legend",), classes="tower-legend")
+            with html.Div(classes="color-key", v_if="terrain_key_class !== 'terrain-ramp-serving'"):
                 html.Span("{{ terrain_low }}")
                 html.Div(classes=("terrain_key_class",))
                 html.Span("{{ terrain_high }}")
             html.Div(
                 "Drag to rotate · scroll or right-drag to zoom · Shift-drag to pan. "
-                "Zoom buttons also work without a mouse. Gold marks the transmitter.",
+                "Zoom buttons also work without a mouse. Colored markers locate transmitters.",
                 classes="note",
             )
             html.Div("{{ terrain_applied }}", classes="note")
+            html.Div("{{ terrain_network_note }}", v_if="terrain_network_note", classes="explanation")
             items = [
                 (
                     "Environment",
@@ -407,6 +527,10 @@ class TerrainPanel:
                 ),
                 ("Transmitter location", "position", [
                     ("west", "West side"), ("center", "Center"), ("east", "East side"),
+                ]),
+                ("Coverage shown", "network_view", [
+                    ("all", "Strongest of all five towers"),
+                    *[(str(i), "Only tower " + tower.name) for i, tower in enumerate(metro_towers())],
                 ]),
                 (
                     "Coverage frequency",
@@ -419,7 +543,7 @@ class TerrainPanel:
                     [(str(v), f"{v} m") for v in (10, 30, 60, 150, 300, 500)],
                 ),
                 ("Rx height AGL", "rx_height", [(str(v), f"{v} m") for v in (2, 10, 30)]),
-                ("Transmit power", "power", [(str(v), f"{v} dBm") for v in (0, 10, 20, 30)]),
+                ("Transmit power", "power", [(str(v), f"{v} dBm") for v in (0, 10, 20, 30, 40)]),
                 (
                     "Assumed peak gain",
                     "peak_gain",
@@ -451,6 +575,7 @@ class TerrainPanel:
                         ("diffraction", "Added terrain loss"),
                         ("los", "Geometric sight lines"),
                         ("elevation", "Terrain elevation"),
+                        ("serving", "Strongest tower · colored regions"),
                     ],
                 ),
                 (
@@ -474,17 +599,22 @@ class TerrainPanel:
                     [(str(v), f"{v} dBm") for v in (-70, -80, -90, -100)],
                 ),
             ]
-            primary = {"kind", "position", "tx_height", "quantity"}
+            primary = {"kind", "position", "network_view", "tx_height", "quantity"}
 
             def control(label, key, options):
                 if key == "kind" and self.custom_terrain is not None:
                     return
-                with html.Label(label):
+                condition = ("terrain_kind === 'metro_network'" if key == "network_view" else
+                             "terrain_kind !== 'metro_network'" if key in
+                             ("position", "peak_gain", "heading", "elevation") else "true")
+                with html.Label(label, v_if=condition):
                     with html.Select(
                         v_model=("terrain_" + key, s["terrain_" + key]), aria_label=label
                     ):
                         for value, text in options:
-                            html.Option(text, value=value)
+                            html.Option(text, value=value,
+                                        v_if=("terrain_kind === 'metro_network' && terrain_network_view === 'all'"
+                                              if value == "serving" else "true"))
 
             with html.Div(classes="controls"):
                 for label, key, options in items:
