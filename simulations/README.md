@@ -1,5 +1,13 @@
 # Reproduce the patch reference
 
+For the separate, independently authored **through-wall field experiment**, run
+`python simulations/run_through_wall.py --build`. It compares a fed dipole in
+air, an assumed lossy dielectric wall, and a PEC wall, then performs a finer
+air/dielectric sensitivity pair. Each accepted run must reach -60 dB residual
+energy. See [the field experiment documentation](../docs/nearfield.rst).
+View saved results with `python examples/through_wall.py --browser` on port 8767.
+No solver is required for viewing the bundled sample.
+
 Adapted from Thorsten Liebig's **Simple Patch Antenna** tutorial:
 https://github.com/thliebig/openEMS/blob/53a426429809ade506828c0aadb550589a115ee5/matlab/Tutorials/Simple_Patch_Antenna.m
 

@@ -4,6 +4,13 @@ from .environments import synthetic_environment
 from .mesh import difference_mesh, radiation_mesh
 from .metrics import beamwidth, half_power_beamwidth, pattern_difference
 from .model import RadiationData, load, save
+from .nearfield import (
+    FieldPlaneData,
+    field_plane_mesh,
+    load_field_plane,
+    load_through_wall,
+    save_field_plane,
+)
 from .network import NetworkCoverageResult, RadioTower, metro_towers, network_coverage
 from .numerics import amplitude_db, directivity, power_db, principal_cut, spherical_directions
 from .plotting import RadiationViewer, compare_patterns, plot_pattern
@@ -23,6 +30,11 @@ __all__ = [
     "from_arrays",
     "load_csv",
     "Building",
+    "FieldPlaneData",
+    "field_plane_mesh",
+    "load_field_plane",
+    "save_field_plane",
+    "load_through_wall",
     "RadioTower",
     "NetworkCoverageResult",
     "network_coverage",

@@ -1,6 +1,17 @@
 API reference
 =============
 
+Cartesian electric-field planes
+-------------------------------
+
+.. autoclass:: pyvista_radiation.FieldPlaneData
+   :members:
+
+.. autofunction:: pyvista_radiation.load_through_wall
+.. autofunction:: pyvista_radiation.field_plane_mesh
+.. autofunction:: pyvista_radiation.load_field_plane
+.. autofunction:: pyvista_radiation.save_field_plane
+
 Data
 ----
 

@@ -1,0 +1,31 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 161x121x81 --> 1.57796e+06 FDTD cells 
+FDTD timestep is: 9.62917e-12 s; Nyquist rate: 18 timesteps @2.88475e+09 Hz
+Excitation signal length is: 744 timesteps (7.1641e-09s)
+Max. number of timesteps: 12000 ( --> 16.129 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:          148 || Speed:   58.4 MC/s (2.704e-02 s/TS) || Energy: ~6.31e-18 (- 0.00dB)
+[@        8s] Timestep:          472 || Speed:  127.7 MC/s (1.236e-02 s/TS) || Energy: ~2.86e-14 (- 0.00dB)
+[@       12s] Timestep:          784 || Speed:  122.6 MC/s (1.288e-02 s/TS) || Energy: ~2.11e-17 (-31.31dB)
+[@       16s] Timestep:         1112 || Speed:  127.9 MC/s (1.233e-02 s/TS) || Energy: ~7.60e-22 (-75.76dB)
+Time for 1112 iterations with 1577961.00 cells : 16.07 sec
+Speed: 109.18 MCells/s 
+THROUGH_WALL_FINISHED metal 5
+error: ignoring const execution_exception& while preparing to exit

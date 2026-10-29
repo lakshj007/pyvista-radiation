@@ -1,0 +1,276 @@
+{
+  "provenance": "Actual openEMS full-wave FDTD; independently authored small-wall example",
+  "solver_version": "0.0.35+git20190103.6a75e98+dfsg.1-3.2",
+  "source_normalization": "Complex E-field divided by the complex incident-voltage spectrum from calcPort; V/m for a 1 V incident voltage wave at the 50-ohm dipole feed. Not normalized to radiated power or a commercial transmitter.",
+  "domain_bounds_m": [
+    -0.4,
+    0.4,
+    -0.3,
+    0.3,
+    -0.2,
+    0.2
+  ],
+  "wall_bounds_m": [
+    0,
+    0.08,
+    -0.2,
+    0.2,
+    -0.12,
+    0.12
+  ],
+  "material": {
+    "relative_permittivity": 4,
+    "conductivity_s_per_m": 0.03,
+    "description": "Illustrative lossy dielectric; not measured concrete"
+  },
+  "source_xyz_m": [
+    -0.22,
+    0,
+    0
+  ],
+  "source_length_m": 0.05,
+  "antenna": "50 mm PEC fat dipole, 10 mm square arms, 10 mm feed gap, 50-ohm lumped port",
+  "receivers": [
+    {
+      "name": "Before wall",
+      "xyz_m": [
+        -0.12000000476837158,
+        0.0,
+        0
+      ],
+      "field_v_per_m": [
+        8.779254913330078,
+        6.832743167877197,
+        6.279582500457764
+      ],
+      "change_vs_air_db": [
+        0.0,
+        -2.1772513389587402,
+        -2.9105377197265625
+      ]
+    },
+    {
+      "name": "Behind wall",
+      "xyz_m": [
+        0.20000000298023224,
+        0.0,
+        0
+      ],
+      "field_v_per_m": [
+        2.1791160106658936,
+        2.8639910221099854,
+        0.361142098903656
+      ],
+      "change_vs_air_db": [
+        0.0,
+        2.373826026916504,
+        -15.612044334411621
+      ]
+    }
+  ],
+  "grid_spacing_m": 0.005,
+  "boundaries": "PML_8 on all six faces",
+  "end_criterion": 1e-06,
+  "max_timesteps": 12000,
+  "run_evidence": {
+    "air": {
+      "last_reported_energy_db": -82.13,
+      "mesh_nodes_xyz": [
+        161,
+        121,
+        81
+      ],
+      "min_cell_m": 0.004999999999999949,
+      "max_cell_m": 0.0050000000000000044,
+      "mesh_warnings": [
+        "Time for 990 iterations with 1577961.00 cells : 12.08 sec"
+      ],
+      "termination": [
+        "FDTD timestep is: 9.62917e-12 s; Nyquist rate: 18 timesteps @2.88475e+09 Hz",
+        "Excitation signal length is: 744 timesteps (7.1641e-09s)",
+        "Max. number of timesteps: 12000 ( --> 16.129 * Excitation signal length)",
+        "[@        4s] Timestep:          324 || Speed:  126.9 MC/s (1.243e-02 s/TS) || Energy: ~1.03e-14 (- 0.00dB)",
+        "[@        8s] Timestep:          660 || Speed:  131.2 MC/s (1.203e-02 s/TS) || Energy: ~1.48e-15 (-12.10dB)",
+        "[@       12s] Timestep:          990 || Speed:  129.9 MC/s (1.214e-02 s/TS) || Energy: ~1.47e-22 (-82.13dB)",
+        "THROUGH_WALL_FINISHED air 5"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -5.095529480275081e-12,
+        4.08249999999399e-12
+      ]
+    },
+    "dielectric": {
+      "last_reported_energy_db": -68.31,
+      "mesh_nodes_xyz": [
+        161,
+        121,
+        81
+      ],
+      "min_cell_m": 0.004999999999999949,
+      "max_cell_m": 0.0050000000000000044,
+      "mesh_warnings": [
+        "Time for 1704 iterations with 1577961.00 cells : 24.44 sec"
+      ],
+      "termination": [
+        "Max. number of timesteps: 12000 ( --> 16.129 * Excitation signal length)",
+        "[@        4s] Timestep:          316 || Speed:  123.2 MC/s (1.281e-02 s/TS) || Energy: ~9.68e-15 (- 0.00dB)",
+        "[@        8s] Timestep:          636 || Speed:  125.1 MC/s (1.261e-02 s/TS) || Energy: ~3.29e-15 (- 8.60dB)",
+        "[@       12s] Timestep:          916 || Speed:  107.6 MC/s (1.466e-02 s/TS) || Energy: ~2.74e-17 (-29.39dB)",
+        "[@       16s] Timestep:         1180 || Speed:   98.5 MC/s (1.602e-02 s/TS) || Energy: ~1.08e-18 (-43.44dB)",
+        "[@       20s] Timestep:         1388 || Speed:   81.9 MC/s (1.926e-02 s/TS) || Energy: ~1.14e-19 (-53.22dB)",
+        "[@       24s] Timestep:         1704 || Speed:  124.1 MC/s (1.271e-02 s/TS) || Energy: ~3.52e-21 (-68.31dB)",
+        "THROUGH_WALL_FINISHED dielectric 5"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -5.095145974076825e-12,
+        4.083672132076157e-12
+      ]
+    },
+    "metal": {
+      "last_reported_energy_db": -75.76,
+      "mesh_nodes_xyz": [
+        161,
+        121,
+        81
+      ],
+      "min_cell_m": 0.004999999999999949,
+      "max_cell_m": 0.0050000000000000044,
+      "mesh_warnings": [
+        "Time for 1112 iterations with 1577961.00 cells : 16.07 sec"
+      ],
+      "termination": [
+        "FDTD timestep is: 9.62917e-12 s; Nyquist rate: 18 timesteps @2.88475e+09 Hz",
+        "Excitation signal length is: 744 timesteps (7.1641e-09s)",
+        "Max. number of timesteps: 12000 ( --> 16.129 * Excitation signal length)",
+        "[@        4s] Timestep:          148 || Speed:   58.4 MC/s (2.704e-02 s/TS) || Energy: ~6.31e-18 (- 0.00dB)",
+        "[@        8s] Timestep:          472 || Speed:  127.7 MC/s (1.236e-02 s/TS) || Energy: ~2.86e-14 (- 0.00dB)",
+        "[@       12s] Timestep:          784 || Speed:  122.6 MC/s (1.288e-02 s/TS) || Energy: ~2.11e-17 (-31.31dB)",
+        "[@       16s] Timestep:         1112 || Speed:  127.9 MC/s (1.233e-02 s/TS) || Energy: ~7.60e-22 (-75.76dB)",
+        "THROUGH_WALL_FINISHED metal 5"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -5.094389310757854e-12,
+        4.084271811024589e-12
+      ]
+    },
+    "air_4mm": {
+      "last_reported_energy_db": -62.94,
+      "mesh_nodes_xyz": [
+        211,
+        161,
+        121
+      ],
+      "min_cell_m": 0.0009999999999999974,
+      "max_cell_m": 0.0040000000000000036,
+      "mesh_warnings": [
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 3 > 1.875",
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "found resolution decrease smaller than ratio: 0.33333 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "Time for 5568 iterations with 4110491.00 cells : 150.06 sec"
+      ],
+      "termination": [
+        "[@     2m00s] Timestep:         4988 || Speed:   84.4 MC/s (4.869e-02 s/TS) || Energy: ~8.74e-18 (-37.15dB)",
+        "[@     2m05s] Timestep:         5104 || Speed:   94.0 MC/s (4.375e-02 s/TS) || Energy: ~3.17e-18 (-41.55dB)",
+        "[@     2m09s] Timestep:         5191 || Speed:   89.1 MC/s (4.615e-02 s/TS) || Energy: ~1.36e-18 (-45.24dB)",
+        "[@     2m15s] Timestep:         5307 || Speed:   90.9 MC/s (4.522e-02 s/TS) || Energy: ~4.13e-19 (-50.40dB)",
+        "[@     2m20s] Timestep:         5423 || Speed:   84.5 MC/s (4.862e-02 s/TS) || Energy: ~1.19e-19 (-55.81dB)",
+        "[@     2m25s] Timestep:         5510 || Speed:   83.8 MC/s (4.908e-02 s/TS) || Energy: ~4.72e-20 (-59.83dB)",
+        "[@     2m30s] Timestep:         5568 || Speed:   48.7 MC/s (8.433e-02 s/TS) || Energy: ~2.31e-20 (-62.94dB)",
+        "THROUGH_WALL_FINISHED air 4"
+      ]
+    },
+    "dielectric_4mm": {
+      "last_reported_energy_db": -60.51,
+      "mesh_nodes_xyz": [
+        211,
+        161,
+        121
+      ],
+      "min_cell_m": 0.0009999999999999974,
+      "max_cell_m": 0.0040000000000000036,
+      "mesh_warnings": [
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 3 > 1.875",
+        "found resolution decrease smaller than ratio: 0.25 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "found resolution decrease smaller than ratio: 0.33333 < 1/1.875=0.53333",
+        "found resolution increase larger than ratio: 4 > 1.875",
+        "Time for 9243 iterations with 4110491.00 cells : 322.12 sec"
+      ],
+      "termination": [
+        "[@     4m53s] Timestep:         8439 || Speed:  132.4 MC/s (3.105e-02 s/TS) || Energy: ~1.90e-19 (-53.66dB)",
+        "[@     4m58s] Timestep:         8584 || Speed:  113.2 MC/s (3.632e-02 s/TS) || Energy: ~1.48e-19 (-54.74dB)",
+        "[@     5m03s] Timestep:         8729 || Speed:  122.6 MC/s (3.353e-02 s/TS) || Energy: ~1.14e-19 (-55.88dB)",
+        "[@     5m08s] Timestep:         8874 || Speed:  114.9 MC/s (3.579e-02 s/TS) || Energy: ~8.59e-20 (-57.11dB)",
+        "[@     5m13s] Timestep:         8990 || Speed:  114.2 MC/s (3.600e-02 s/TS) || Energy: ~6.73e-20 (-58.17dB)",
+        "[@     5m17s] Timestep:         9126 || Speed:  122.3 MC/s (3.362e-02 s/TS) || Energy: ~5.08e-20 (-59.39dB)",
+        "[@     5m22s] Timestep:         9243 || Speed:  107.2 MC/s (3.836e-02 s/TS) || Energy: ~3.93e-20 (-60.51dB)",
+        "THROUGH_WALL_FINISHED dielectric 4"
+      ]
+    }
+  },
+  "display_reference_v_per_m": 22.61903190612793,
+  "display_reference": "Peak air-case |E| on the saved plane at least 30 mm from the source",
+  "sensitivity": {
+    "performed": true,
+    "coarse_spacing_m": 0.005,
+    "fine_spacing_m": 0.004,
+    "receiver_checks": [
+      {
+        "receiver": "Before wall",
+        "fine_change_db": -2.197885662317276,
+        "difference_db": -0.020634323358535767
+      },
+      {
+        "receiver": "Behind wall",
+        "fine_change_db": 2.2750937938690186,
+        "difference_db": -0.09873223304748535
+      }
+    ],
+    "interpretation": "Two-grid sensitivity with locally refined antenna edges; not full convergence or measurement validation"
+  },
+  "limitations": "Finite wall: total field includes through-wall transmission, reflection and edge diffraction; receiver ratios do not isolate material penetration loss. A horizontal slice of a 3D simulation. Numerical dipole and assumed material, no calibrated received dBm, no city-scale or hardware validation.",
+  "generator_sha256": {
+    "through_wall.m": "73166126efe6b92b75d690c79d5068592ca67c2665d5d8e8693c7f28f5c41156",
+    "export_through_wall.py": "82da26396769c518d2e451d135967ffd6a292c5e7fe512f5af7a3e6f22b33cb3"
+  },
+  "license": "CC0-1.0 numerical outputs",
+  "raw_sha256": {
+    "air_4mm.log": "787c31c1a8ca3aee7264c28f10fd935cfa52bebe5ab961a1d8161db3352e6ff9",
+    "air_4mm_electric.h5": "c0f69af9daf63937809a37be95cd34bf6606cea090f38e950920d0fc130e5158",
+    "air_4mm_et": "3a981e7efb0b06dfa4b600d1eacbb006456fe9d68ab350860326812d30ca38c9",
+    "air_4mm_geometry.xml": "446b5745276628a70a1fb9cb45f76d86c70f5682c46ffb48096e5820a9676715",
+    "air_4mm_port.csv": "9a9eb903b2f32c8278e5892b9c046d7ccf34eaedad4ec0ce527232685a34cdfb",
+    "air_5mm.log": "2df20aea0449131814c03aa11e6c48160bd82d56624f40d8707d242285894973",
+    "air_5mm_electric.h5": "5ba4309b1c4be4997e010b979babf7d0f39365bd2c3c318d2fe00b06ae09f362",
+    "air_5mm_et": "1d328f58d53f4637738f97f38f30aa11d5ad5e3fa2899fff162912798eb0ea6c",
+    "air_5mm_geometry.xml": "783a2c2c20b6486fa98c9ef6741f95d5e786e8fabc610f0d7ae29455678de2d1",
+    "air_5mm_port.csv": "6655a5b883f24e68781b58bce1a3eebffcc9c528c69d45458bd86e32b17ded1d",
+    "dielectric_4mm.log": "09f51c2fea7b77788b53f72bde8998920636f6e82518af9e84d0fa14530d6e33",
+    "dielectric_4mm_electric.h5": "4841d4c7bbb752ffe4fd461ffcad6bc373f02d19eb0593ee0db324d7fe95f37e",
+    "dielectric_4mm_et": "3a981e7efb0b06dfa4b600d1eacbb006456fe9d68ab350860326812d30ca38c9",
+    "dielectric_4mm_geometry.xml": "d26adca3c1d9847524fc6739b499c96a75a4968209c439a5f8bdfa9df593ded6",
+    "dielectric_4mm_port.csv": "fb524d6b30dc200280e5e93b0de745411206b2b907162ee1bde3762c75577c6e",
+    "dielectric_5mm.log": "ce19bcaf2f8a639d6be08fb8d0587b449c0a9f996a8c2482994983c14fb4a46d",
+    "dielectric_5mm_electric.h5": "66706fb927bb718868e8ba20179cea40d60cf1f349be519c8be582654b0d01fe",
+    "dielectric_5mm_et": "1d328f58d53f4637738f97f38f30aa11d5ad5e3fa2899fff162912798eb0ea6c",
+    "dielectric_5mm_geometry.xml": "abea71d6577e63a5f6c14d0ff77234d658c60f1155f61854bdad30920a1bfdca",
+    "dielectric_5mm_port.csv": "97758748b2e3f4cd81ad00fa1705a9ca183127970ba73afa603ca406d6d1bd24",
+    "metal_5mm.log": "b7eb783b373c2d6cdd8d726686acc5cb208248753f0d13af769f7aeeb091c143",
+    "metal_5mm_electric.h5": "ea93777d7f04fd846b5865df9705a9f9092d033360f93f8d928819ec4c364318",
+    "metal_5mm_et": "1d328f58d53f4637738f97f38f30aa11d5ad5e3fa2899fff162912798eb0ea6c",
+    "metal_5mm_geometry.xml": "d957943be39a6a0d812510a3fbce74e1bb55b6ae59f633a9490b1d0aa60cdc5c",
+    "metal_5mm_port.csv": "3b8fae8f134b86cc848953bd729aa496f2347593c040f65663a8f625be874260"
+  }
+}

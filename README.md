@@ -62,6 +62,23 @@ See [importing fields](docs/importing.rst) and the [data contract](docs/data-con
 
 ## Examples and optional browser demo
 
+An actual openEMS through-wall experiment compares air, a lossy dielectric slab
+and a metal wall. The saved complex fields can be explored in native PyVista
+or in a separate interactive viewer, including a steady-state wave-phase cycle:
+
+```sh
+python examples/through_wall.py --browser   # http://127.0.0.1:8767
+python examples/through_wall.py             # native PyVista comparison
+```
+
+![Actual openEMS electric-field phase in PyVista](preview/through_wall_phase.png)
+
+This small 3D experiment includes transmission, reflection and edge diffraction.
+It uses an assumed dielectric and a numerical dipole; receiver comparisons are
+total field changes, not measured building penetration loss or received dBm.
+Viewing uses bundled fields and needs no solver. See [the experiment](docs/nearfield.rst)
+for the source normalization, validation and Docker reproduction command.
+
 The featured city example combines a winding valley, surrounding hills, roughly
 190 buildings, varied neighborhoods and roads in one interactive PyVista scene.
 Ground colors show the selected coverage/elevation quantity. Move the transmitter
