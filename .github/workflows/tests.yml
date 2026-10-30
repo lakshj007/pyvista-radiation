@@ -1,0 +1,102 @@
+name: Validate package and docs
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.10', '3.12']
+    env:
+      PYVISTA_OFF_SCREEN: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install VTK headless rendering libraries
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libopengl0 libgl1 libegl1 libegl-mesa0 libgl1-mesa-dri libxrender1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e '.[preview,test]'
+      - run: pip install ruff
+      - run: ruff check src tests examples
+      - run: pytest -q
+      - name: Run native extension examples without a browser server
+        run: |
+          python examples/pyvista_extension.py --screenshot "$RUNNER_TEMP/radiation.png"
+          python examples/user_arrays.py --screenshot "$RUNNER_TEMP/dipole.png"
+          python examples/urban_landscape.py --screenshot "$RUNNER_TEMP/urban.png"
+          python examples/regional_network.py --grid 25 --screenshot "$RUNNER_TEMP/network.png"
+          python examples/through_wall.py --phase 90 --screenshot "$RUNNER_TEMP/wall.png"
+          python examples/through_wall.py --materials --phase 90 --screenshot "$RUNNER_TEMP/materials.png"
+          python examples/two_floor_house.py --screenshot "$RUNNER_TEMP/house.png"
+          python examples/house_showcase/render_preview.py --screenshot "$RUNNER_TEMP/showcase.png"
+  standalone-showcase:
+    runs-on: ubuntu-latest
+    env:
+      PYVISTA_OFF_SCREEN: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: sudo apt-get update && sudo apt-get install -y libopengl0 libgl1 libegl1 libegl-mesa0 libgl1-mesa-dri libxrender1
+      - run: pip install 'pyvista>=0.49' numpy
+      - name: Run copied showcase outside checkout without the extension
+        run: |
+          cp -R examples/house_showcase "$RUNNER_TEMP/house_showcase"
+          cd "$RUNNER_TEMP"
+          python -c "import importlib.util; assert importlib.util.find_spec('pyvista_radiation') is None"
+          python house_showcase/render_preview.py --screenshot "$RUNNER_TEMP/standalone-house.png"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: standalone-house-preview
+          path: ${{ runner.temp }}/standalone-house.png
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install build
+      - run: python -m build
+      - run: pip install dist/*.whl
+      - name: Load bundled data outside checkout without optional dependencies
+        working-directory: /tmp
+        run: python -c "from pyvista_radiation import load_patch, load_through_wall, load_material_lab, load_house; assert load_patch().e_theta.shape == (3,37,72); assert load_through_wall().case_names == ('air', 'dielectric', 'metal'); assert len(load_material_lab().case_names) == 8; assert load_house().case_names == ('open', 'closed', 'air')"
+      - run: pip install 'pyvista>=0.49'
+      - name: Discover installed wheel plotter component outside checkout
+        working-directory: /tmp
+        env:
+          PYVISTA_OFF_SCREEN: 'true'
+        run: |
+          python - <<'PY'
+          import sys
+          import pyvista as pv
+          from pyvista_radiation import load_patch
+          assert 'pyvista_radiation._pyvista_plugin' not in sys.modules
+          plotter = pv.Plotter(off_screen=True)
+          actor = plotter.radiation.add_pattern(load_patch(), show_scalar_bar=False)
+          plotter.radiation.set_frequency(actor, 1)
+          assert actor.mapper.dataset.field_data['Frequency (Hz)'][0] == 2.4e9
+          assert 'trame' not in sys.modules
+          plotter.close()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[docs]'
+      - run: sphinx-build -W --keep-going -b html docs docs/_build/html
+      - uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/_build/html

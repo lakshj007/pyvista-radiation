@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "angle_convention": "theta_from_+z_phi_from_+x_toward_+y",
+  "angle_unit": "rad",
+  "frequency_unit": "Hz",
+  "field_unit": "V/m",
+  "array_order": [
+    "frequency",
+    "theta",
+    "phi"
+  ],
+  "reference_radius_m": 1.0,
+  "normalization": "none",
+  "provenance": {
+    "kind": "simulation",
+    "source": "openEMS Simple Patch Antenna tutorial",
+    "generator": "simulations/generate_patch.m + simulations/export_npz.py",
+    "solver_version": "0.0.35+git20190103.6a75e98+dfsg.1-3.2",
+    "upstream_commit": "53a426429809ade506828c0aadb550589a115ee5",
+    "generation_date": "2026-10-22",
+    "angular_coordinates": "Exact requested grid; raw HDF5 axes are float32 rounded copies",
+    "amplitude_reference": "Steady response to the tutorial source with unit-amplitude temporal envelope; not incident-power normalized",
+    "calibration": {
+      "date": "2026-10-24",
+      "algorithm": "E_raw / S(f); Prad_raw / abs(S(f))**2",
+      "source": "data/raw/excitation.csv",
+      "spectrum_seconds_real": [
+        4.4962264481233127e-10,
+        -5.458594631201065e-10,
+        -6.069971953738145e-11
+      ],
+      "spectrum_seconds_imag": [
+        -6.293350834632432e-10,
+        -2.2511140514084804e-10,
+        3.715348513715293e-10
+      ],
+      "dft": "S(f) = 2*dt*sum(et(t)*exp(-2*pi*i*f*t)); matches openEMS pulse DFT convention"
+    },
+    "end_criterion": 1e-05,
+    "generator_sha256": {
+      "generate_patch.m": "e98e32ada430f844246c0e523fc44b161a21b195d7d6c299e01c279ad8cc6d05",
+      "export_npz.py": "0bbcd5ce7996bab88c5c7e98c44b68e02679867a47cc76c0065cc86aec856d40"
+    },
+    "license": "CC0-1.0 (numerical outputs)",
+    "source_sha256": {
+      "cuts_1.h5": "a4b4decdc22393fcd6b2954995a61f663c149e4f3ee255b0d2e06fba470b1ed2",
+      "cuts_2.h5": "25be6262bdd71af507678db0544b1d39227d18ecc4ff1ec46cf23e17a5b31c37",
+      "cuts_3.h5": "394da3cb99565b205ef3b1b1a08638d1bfe4e41015c960f5631be7d3f46da682",
+      "excitation.csv": "b458fec01d8b5b7fa0caac5bcaf53d4a5420f16900c44f5e6ca0a08695846ee7",
+      "geometry.xml": "63d58be9c3106b5e94a38702a8da52dc3f3b7929bb47c5a2021c62e165a2d4af",
+      "patch_1.h5": "da3b0ed9c0aa10a0b31026e743beefd25541adb7ba7d77e06dafc1aed675d415",
+      "patch_2.h5": "52136904a3c1bcf51d2b67b68b64c725b9c3186f0e4310ca2f496039feaca575",
+      "patch_3.h5": "8f23419b3ca8295fe0f258f07bcf714f67ec3506a7c2086b1270c73f56aea6d0",
+      "port.csv": "2f2d45c1be8e10ba59e1f7e630ca5bc5029baf7b40fcaa127063dcc407393849",
+      "postprocess.log": "e557bc852e877914766556fe964ecf810d074b74c35fc416dd83bec4b1628830",
+      "solver.log": "0af690b6e614864b4fcd6a8d3747c2aca1b57c4ae39b58da01a599bbfe24ca2b"
+    },
+    "antenna": {
+      "patch_mm": [
+        32,
+        40
+      ],
+      "substrate_mm": [
+        60,
+        60,
+        1.524
+      ],
+      "eps_r": 3.38,
+      "loss_tangent_reference": 0.001,
+      "loss_reference_hz": 2450000000.0,
+      "feed_x_mm": -6,
+      "feed_resistance_ohm": 50,
+      "phase_center_m": [
+        0,
+        0,
+        0.001
+      ],
+      "box_mm": [
+        200,
+        200,
+        150
+      ],
+      "boundaries": "MUR",
+      "max_timesteps": 30000
+    }
+  }
+}

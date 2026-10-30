@@ -1,0 +1,47 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 68x69x63 --> 295596 FDTD cells 
+FDTD timestep is: 5.34767e-13 s; Nyquist rate: 311 timesteps @3.00639e+09 Hz
+Excitation signal length is: 5358 timesteps (2.86528e-09s)
+Max. number of timesteps: 90000 ( --> 16.7973 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:         1463 || Speed:  100.9 MC/s (2.929e-03 s/TS) || Energy: ~7.28e-15 (- 0.00dB)
+[@        8s] Timestep:         3465 || Speed:  146.8 MC/s (2.013e-03 s/TS) || Energy: ~5.06e-14 (-13.66dB)
+[@       12s] Timestep:         5929 || Speed:  175.6 MC/s (1.684e-03 s/TS) || Energy: ~3.55e-13 (- 5.20dB)
+[@       16s] Timestep:         7854 || Speed:  137.5 MC/s (2.150e-03 s/TS) || Energy: ~1.72e-13 (- 8.34dB)
+[@       20s] Timestep:         9779 || Speed:  142.2 MC/s (2.079e-03 s/TS) || Energy: ~8.18e-14 (-11.58dB)
+[@       24s] Timestep:        11550 || Speed:  128.7 MC/s (2.296e-03 s/TS) || Energy: ~3.91e-15 (-24.78dB)
+[@       28s] Timestep:        13167 || Speed:  114.9 MC/s (2.573e-03 s/TS) || Energy: ~1.42e-14 (-19.19dB)
+[@       32s] Timestep:        15015 || Speed:  135.7 MC/s (2.178e-03 s/TS) || Energy: ~1.99e-15 (-27.72dB)
+[@       36s] Timestep:        16709 || Speed:  124.5 MC/s (2.374e-03 s/TS) || Energy: ~4.74e-15 (-23.95dB)
+[@       40s] Timestep:        18557 || Speed:  134.8 MC/s (2.192e-03 s/TS) || Energy: ~2.06e-15 (-27.56dB)
+[@       45s] Timestep:        20251 || Speed:  120.6 MC/s (2.451e-03 s/TS) || Energy: ~3.61e-16 (-35.13dB)
+[@       49s] Timestep:        22022 || Speed:  128.9 MC/s (2.294e-03 s/TS) || Energy: ~5.44e-16 (-33.35dB)
+[@       53s] Timestep:        23947 || Speed:  142.0 MC/s (2.081e-03 s/TS) || Energy: ~2.52e-16 (-36.70dB)
+[@       57s] Timestep:        25641 || Speed:  124.5 MC/s (2.374e-03 s/TS) || Energy: ~1.46e-17 (-49.07dB)
+[@     1m01s] Timestep:        27797 || Speed:  156.8 MC/s (1.885e-03 s/TS) || Energy: ~5.10e-17 (-43.63dB)
+[@     1m05s] Timestep:        29722 || Speed:  140.3 MC/s (2.106e-03 s/TS) || Energy: ~2.25e-17 (-47.18dB)
+[@     1m09s] Timestep:        31801 || Speed:  153.0 MC/s (1.932e-03 s/TS) || Energy: ~9.17e-19 (-61.08dB)
+Time for 31801 iterations with 295596.00 cells : 69.31 sec
+Speed: 135.63 MCells/s 
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+error: ignoring const execution_exception& while preparing to exit

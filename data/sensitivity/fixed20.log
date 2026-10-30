@@ -1,0 +1,56 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 49x49x43 --> 103243 FDTD cells 
+FDTD timestep is: 9.63258e-13 s; Nyquist rate: 173 timesteps @3.00041e+09 Hz
+Excitation signal length is: 2975 timesteps (2.86569e-09s)
+Max. number of timesteps: 60000 ( --> 20.1681 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:         3354 || Speed:   85.4 MC/s (1.208e-03 s/TS) || Energy: ~1.99e-13 (- 4.82dB)
+[@        8s] Timestep:         6020 || Speed:   67.1 MC/s (1.539e-03 s/TS) || Energy: ~4.89e-15 (-20.92dB)
+[@       12s] Timestep:         8213 || Speed:   55.7 MC/s (1.853e-03 s/TS) || Energy: ~5.53e-15 (-20.39dB)
+[@       16s] Timestep:        10750 || Speed:   64.5 MC/s (1.600e-03 s/TS) || Energy: ~4.94e-16 (-30.88dB)
+[@       20s] Timestep:        13287 || Speed:   64.5 MC/s (1.600e-03 s/TS) || Energy: ~2.46e-17 (-43.90dB)
+[@       24s] Timestep:        15738 || Speed:   62.6 MC/s (1.648e-03 s/TS) || Energy: ~2.57e-17 (-43.73dB)
+[@       28s] Timestep:        18189 || Speed:   62.9 MC/s (1.640e-03 s/TS) || Energy: ~5.51e-19 (-60.41dB)
+[@       32s] Timestep:        20769 || Speed:   66.4 MC/s (1.554e-03 s/TS) || Energy: ~4.36e-19 (-61.42dB)
+[@       36s] Timestep:        23392 || Speed:   66.6 MC/s (1.551e-03 s/TS) || Energy: ~5.11e-19 (-60.73dB)
+[@       40s] Timestep:        25714 || Speed:   59.9 MC/s (1.724e-03 s/TS) || Energy: ~5.31e-19 (-60.57dB)
+[@       44s] Timestep:        28079 || Speed:   60.0 MC/s (1.720e-03 s/TS) || Energy: ~6.44e-19 (-59.73dB)
+[@       48s] Timestep:        30573 || Speed:   63.7 MC/s (1.620e-03 s/TS) || Energy: ~7.78e-19 (-58.91dB)
+[@       52s] Timestep:        33024 || Speed:   63.1 MC/s (1.636e-03 s/TS) || Energy: ~9.24e-19 (-58.16dB)
+[@       56s] Timestep:        35346 || Speed:   59.8 MC/s (1.726e-03 s/TS) || Energy: ~1.08e-18 (-57.50dB)
+[@     1m00s] Timestep:        37496 || Speed:   55.5 MC/s (1.861e-03 s/TS) || Energy: ~1.22e-18 (-56.94dB)
+[@     1m04s] Timestep:        39904 || Speed:   61.7 MC/s (1.672e-03 s/TS) || Energy: ~1.40e-18 (-56.34dB)
+[@     1m08s] Timestep:        42312 || Speed:   61.6 MC/s (1.675e-03 s/TS) || Energy: ~1.60e-18 (-55.79dB)
+[@     1m12s] Timestep:        44505 || Speed:   55.4 MC/s (1.862e-03 s/TS) || Energy: ~1.78e-18 (-55.31dB)
+[@     1m16s] Timestep:        46612 || Speed:   54.1 MC/s (1.907e-03 s/TS) || Energy: ~1.97e-18 (-54.88dB)
+[@     1m20s] Timestep:        48934 || Speed:   59.4 MC/s (1.739e-03 s/TS) || Energy: ~2.18e-18 (-54.43dB)
+[@     1m24s] Timestep:        51342 || Speed:   60.9 MC/s (1.696e-03 s/TS) || Energy: ~2.42e-18 (-53.98dB)
+[@     1m28s] Timestep:        53621 || Speed:   58.0 MC/s (1.780e-03 s/TS) || Energy: ~2.65e-18 (-53.58dB)
+[@     1m32s] Timestep:        55857 || Speed:   57.2 MC/s (1.806e-03 s/TS) || Energy: ~2.89e-18 (-53.20dB)
+[@     1m37s] Timestep:        58136 || Speed:   57.9 MC/s (1.783e-03 s/TS) || Energy: ~3.15e-18 (-52.83dB)
+RunFDTD: Warning: Max. number of timesteps was reached before the end-criteria of -300dB was reached... 
+	You may want to choose a higher number of max. timesteps... 
+Time for 60000 iterations with 103243.00 cells : 100.62 sec
+Speed: 61.56 MCells/s 
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+error: ignoring const execution_exception& while preparing to exit

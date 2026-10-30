@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+simulations/work/
+.DS_Store
+dist/
+docs/_build/
+.ruff_cache/
+
+docs/auto_examples/
+docs/sg_execution_times.rst

@@ -1,0 +1,42 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 209x169x225 --> 7.94722e+06 FDTD cells 
+FDTD timestep is: 4.81458e-11 s; Nyquist rate: 17 timesteps @6.10889e+08 Hz
+Excitation signal length is: 596 timesteps (2.86949e-08s)
+Max. number of timesteps: 16000 ( --> 26.8456 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:          144 || Speed:  275.4 MC/s (2.886e-02 s/TS) || Energy: ~8.25e-16 (- 0.00dB)
+[@        8s] Timestep:          288 || Speed:  278.9 MC/s (2.849e-02 s/TS) || Energy: ~4.21e-13 (- 0.00dB)
+[@       12s] Timestep:          440 || Speed:  291.9 MC/s (2.723e-02 s/TS) || Energy: ~6.57e-13 (- 0.00dB)
+[@       16s] Timestep:          584 || Speed:  277.8 MC/s (2.861e-02 s/TS) || Energy: ~2.89e-13 (- 3.57dB)
+[@       20s] Timestep:          731 || Speed:  291.8 MC/s (2.723e-02 s/TS) || Energy: ~5.70e-14 (-10.62dB)
+[@       24s] Timestep:          872 || Speed:  276.7 MC/s (2.872e-02 s/TS) || Energy: ~1.87e-14 (-15.46dB)
+[@       28s] Timestep:         1000 || Speed:  235.7 MC/s (3.371e-02 s/TS) || Energy: ~5.62e-15 (-20.68dB)
+[@       32s] Timestep:         1128 || Speed:  253.4 MC/s (3.137e-02 s/TS) || Energy: ~1.59e-15 (-26.15dB)
+[@       37s] Timestep:         1256 || Speed:  242.2 MC/s (3.281e-02 s/TS) || Energy: ~5.54e-16 (-30.75dB)
+[@       41s] Timestep:         1394 || Speed:  272.6 MC/s (2.915e-02 s/TS) || Energy: ~1.79e-16 (-35.64dB)
+[@       45s] Timestep:         1544 || Speed:  291.5 MC/s (2.727e-02 s/TS) || Energy: ~5.45e-17 (-40.82dB)
+[@       49s] Timestep:         1696 || Speed:  288.7 MC/s (2.753e-02 s/TS) || Energy: ~1.68e-17 (-45.92dB)
+[@       53s] Timestep:         1848 || Speed:  294.1 MC/s (2.703e-02 s/TS) || Energy: ~4.52e-18 (-51.63dB)
+[@       57s] Timestep:         2000 || Speed:  289.3 MC/s (2.748e-02 s/TS) || Energy: ~1.31e-18 (-57.01dB)
+[@     1m01s] Timestep:         2152 || Speed:  291.5 MC/s (2.726e-02 s/TS) || Energy: ~3.94e-19 (-62.22dB)
+Time for 2152 iterations with 7947225.00 cells : 61.83 sec
+Speed: 276.59 MCells/s 
+THROUGH_WALL_FINISHED open 25
+error: ignoring const execution_exception& while preparing to exit

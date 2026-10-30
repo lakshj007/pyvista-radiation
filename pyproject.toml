@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyvista-radiation"
+version = "0.2.0"
+description = "A PyVista extension for antenna radiation meshes, comparison and analysis"
+readme = "README.md"
+license = "MIT AND CC0-1.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+plot = ["pyvista>=0.49"]
+browser = ["pyvista>=0.49", "matplotlib>=3.7", "trame-pyvista"]
+notebook = ["pyvista>=0.49", "trame-pyvista", "ipywidgets>=8", "ipykernel>=6"]
+preview = ["pyvista>=0.49", "matplotlib>=3.7", "trame-pyvista"]
+test = ["pytest>=7"]
+docs = ["sphinx>=7", "sphinx-gallery>=0.19", "matplotlib>=3.7", "pyvista>=0.49"]
+dev = ["pytest>=7", "build", "ruff", "sphinx>=7"]
+
+[project.scripts]
+pyvista-radiation = "pyvista_radiation.__main__:main"
+
+[project.entry-points."pyvista.plotter_components"]
+radiation = "pyvista_radiation._pyvista_plugin"
+
+[tool.setuptools.package-data]
+pyvista_radiation = ["data/*.npz", "data/LICENSE"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+ignore = ["E402"]

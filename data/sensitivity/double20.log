@@ -1,0 +1,37 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 49x49x43 --> 103243 FDTD cells 
+FDTD timestep is: 9.63258e-13 s; Nyquist rate: 173 timesteps @3.00041e+09 Hz
+Excitation signal length is: 2975 timesteps (2.86569e-09s)
+Max. number of timesteps: 30000 ( --> 10.084 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+[@        4s] Timestep:         2150 || Speed:   54.9 MC/s (1.879e-03 s/TS) || Energy: ~1.10e-13 (-13.43dB)
+[@        8s] Timestep:         4730 || Speed:   66.0 MC/s (1.565e-03 s/TS) || Energy: ~3.22e-14 (-18.76dB)
+[@       12s] Timestep:         7224 || Speed:   64.1 MC/s (1.610e-03 s/TS) || Energy: ~3.12e-14 (-18.89dB)
+[@       16s] Timestep:         9761 || Speed:   64.8 MC/s (1.592e-03 s/TS) || Energy: ~7.66e-15 (-24.99dB)
+[@       20s] Timestep:        12255 || Speed:   64.1 MC/s (1.610e-03 s/TS) || Energy: ~8.27e-16 (-34.66dB)
+[@       24s] Timestep:        14835 || Speed:   65.8 MC/s (1.569e-03 s/TS) || Energy: ~1.66e-16 (-41.63dB)
+[@       28s] Timestep:        17372 || Speed:   64.7 MC/s (1.595e-03 s/TS) || Energy: ~1.49e-17 (-52.10dB)
+Time for 17372 iterations with 103243.00 cells : 28.24 sec
+Speed: 63.51 MCells/s 
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+error: ignoring const execution_exception& while preparing to exit

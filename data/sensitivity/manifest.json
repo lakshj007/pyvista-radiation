@@ -1,0 +1,112 @@
+{
+  "cases": [
+    {
+      "name": "mur20",
+      "cells": 20,
+      "substrate": 4,
+      "boundary": "MUR",
+      "amplitude": 1,
+      "box": 1
+    },
+    {
+      "name": "mur25",
+      "cells": 25,
+      "substrate": 6,
+      "boundary": "MUR",
+      "amplitude": 1,
+      "box": 1
+    },
+    {
+      "name": "mur30",
+      "cells": 30,
+      "substrate": 8,
+      "boundary": "MUR",
+      "amplitude": 1,
+      "box": 1
+    },
+    {
+      "name": "pml20",
+      "cells": 20,
+      "substrate": 4,
+      "boundary": "PML_8",
+      "amplitude": 1,
+      "box": 1
+    },
+    {
+      "name": "large20",
+      "cells": 20,
+      "substrate": 4,
+      "boundary": "MUR",
+      "amplitude": 1,
+      "box": 1.5
+    },
+    {
+      "name": "double20",
+      "cells": 20,
+      "substrate": 4,
+      "boundary": "MUR",
+      "amplitude": 2,
+      "box": 1
+    },
+    {
+      "name": "fixed20",
+      "cells": 20,
+      "substrate": 4,
+      "boundary": "MUR",
+      "amplitude": 1,
+      "box": 1,
+      "fixed_steps": 60000
+    },
+    {
+      "name": "fixed_double20",
+      "cells": 20,
+      "substrate": 4,
+      "boundary": "MUR",
+      "amplitude": 2,
+      "box": 1,
+      "fixed_steps": 60000
+    }
+  ],
+  "solver_version": "0.0.35+git20190103.6a75e98+dfsg.1-3.2",
+  "date": "2026-10-24",
+  "recipe_sha256": "e98e32ada430f844246c0e523fc44b161a21b195d7d6c299e01c279ad8cc6d05",
+  "angles": "signed theta -180:2:180 deg, phi 0 and 90 deg",
+  "notes": "Controlled sensitivity checks, not a measurement validation or proof of asymptotic convergence.",
+  "runner_snapshot_sha256": "1e1ffb1999be2ea6b1a5e5b48d930610cd31c1322b1e43e04befdb414cd63a5f",
+  "case_source_sha256": {
+    "double20.m": "63753b511c0167135a163d209de8da4d8746f514fcb507542141cc3a5230ad84",
+    "mur30.m": "365ce1137e07cdcd2e878770a39d42e80c22a0752b557031f077290cee6c7ba8",
+    "mur20.m": "d0c66e87c27001fc766c962dfde812718fd3db744af1311ea7da4fca2886f686",
+    "pml20.m": "de30411e02ceb10be0f016cae7b2132a877d8d04058d110cdd1784386acef799",
+    "mur25.m": "3609f259ce7cf4639188467ec88c33fd5e173b3bc81c2e54f7cf58178a01e3d6",
+    "fixed_double20.m": "5b2a11af482dce7de7a7210b01ad414bae070f1fdddb2b4a9d835df06a43abc9",
+    "large20.m": "3067de391981d4f95de8aa9539b30bb58e767b6e32023d0fe760a16779f31cc4",
+    "fixed20.m": "e8afa242a98fffb5cd817125dcdbd40fcf2d150acf620faddcac368571d60a5c"
+  },
+  "output_sha256": {
+    "mur30.npz": "7d98de574a5d6d7e6cf40e1eddfe92763d68fe509bb39788489ba2b6eade8c0c",
+    "mur30.xml": "6cb72e9855d3282297f6899ad0c3d2c9f569d4159b7b235b321dbe87287bf689",
+    "mur25.xml": "4143466c9a7fbce7c60875d8578a1fa0f5cf69442084b0d3c98d03e345d2e731",
+    "mur25.npz": "70a5b7d3b8fbce8d7dde88161867d9bfd20c24160e2a7a6e804723f6cce9c868",
+    "double20.npz": "d20a833515da93884eb08d5435ea03ff3ce8b6bcae7c374f2bfa2a48e7756f9a",
+    "double20.xml": "2bb18c49fa3864d3a69da2edec31e99e49d76c0b1461b38ad695e2aaab64824c",
+    "mur20.xml": "63d58be9c3106b5e94a38702a8da52dc3f3b7929bb47c5a2021c62e165a2d4af",
+    "mur20.npz": "89717495215e7a6b1375f85defe942d05d5178cbb4599c3404568ae789ce1f5c",
+    "fixed_double20.log": "c03815eba74e0bfcaf0dd198061f214e29b02a9450845c69de144bfe3f5b3cc2",
+    "fixed20.npz": "166e5162c86529932364cd5ba52fcc7ab239482fc552ca51b8ab56a2edd5da35",
+    "fixed20.xml": "71fa4a1302b03019c1bf3732cf73675043a3e58e3f837b544dcabe456f5d5a1f",
+    "large20.log": "e9ff955ba8ffd2db73c173902b4b2f3772f010059537f06e86529480bdd710c1",
+    "pml20.xml": "a3ee5375fdf5cdf413963f7ca9af90f9613fb37f8f189bd3dbdbb96613e452e7",
+    "pml20.npz": "d7fef326e9e1057935de0fb3890781e233c4ad8d3f7fa9161ff83541039b6668",
+    "fixed_double20.xml": "5bce001b3662891f94c5ff317ea607ef50c2c80d0d58d3bff76fac39ddad9f27",
+    "fixed_double20.npz": "f022eaad06ca8fe60fa2b1758f859022421fd429ace4443a0ae06b39ff471be6",
+    "fixed20.log": "c8dd251f492bc5e58426fd96b69d027acf3a507319567f2c9fffadb206840500",
+    "large20.npz": "1bcd05cc03057120ab2e439e122815d05071df390ce9533384f65e0745edc30a",
+    "large20.xml": "098ef118a35604897d7d976b907d5dd1b2d2fb4a46b95784bc4238d82dabee5e",
+    "pml20.log": "49aff9899776f409b2de8a1a06f607c68ffa16934735732ad9d8a91c24d97333",
+    "mur30.log": "b00bc9554ee528909e39dfbefefa68b69935b946eff5bd0202899d31587bf757",
+    "mur25.log": "ffec389c406592d2fdff72ef0ecdafe5af5bc2f8f548d7cb47f423ca41cc766a",
+    "double20.log": "bc0847005fcc703aee40cff29f6b86b2a71162b38967624a19e55f3cb0b8e2cb",
+    "mur20.log": "338a8cc3f6897a5f4056db81d3ff1337e9ddacbe892f197b99117c1c6f8eb379"
+  }
+}

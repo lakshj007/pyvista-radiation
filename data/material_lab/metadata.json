@@ -1,0 +1,611 @@
+{
+  "title": "Material wave lab",
+  "experiment": "material_lab",
+  "provenance": "Actual openEMS full-wave FDTD material comparison",
+  "source_normalization": "Complex E-field divided by the complex incident-voltage spectrum from calcPort; V/m for a 1 V incident wave at the 50-ohm dipole feed, not radiated-power normalization.",
+  "solver_version": "0.0.35+git20190103.6a75e98+dfsg.1-3.2",
+  "domain_bounds_m": [
+    -1.2,
+    1.2,
+    -0.8,
+    0.8,
+    -0.5,
+    0.5
+  ],
+  "wall_bounds_m": [
+    0,
+    0.12,
+    -0.5,
+    0.5,
+    -0.3,
+    0.3
+  ],
+  "source_xyz_m": [
+    -0.6,
+    0,
+    0
+  ],
+  "source_length_m": 0.12,
+  "antenna": "120 mm PEC fat dipole, 20 mm square arms and gap, 50-ohm lumped feed",
+  "case_definitions": [
+    {
+      "key": "air",
+      "label": "Air baseline",
+      "model": "air",
+      "description": "No slab"
+    },
+    {
+      "key": "wood",
+      "label": "Wood",
+      "model": "bulk",
+      "bounds_m": [
+        0,
+        0.12,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "relative_permittivity": 1.99,
+      "conductivity_s_per_m": 0.0047,
+      "conductivity_frequency_exponent": 1.0718,
+      "source": "ITU-R P.2040-4 (2025), Table 3, evaluated at 1 GHz",
+      "description": "120 mm equal-thickness reference slab; material-class example, not a measured product"
+    },
+    {
+      "key": "glass",
+      "label": "Glass",
+      "model": "bulk",
+      "bounds_m": [
+        0,
+        0.12,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "relative_permittivity": 6.31,
+      "conductivity_s_per_m": 0.0036,
+      "conductivity_frequency_exponent": 1.3394,
+      "source": "ITU-R P.2040-4 (2025), Table 3, evaluated at 1 GHz",
+      "description": "120 mm equal-thickness reference slab; material-class example, not a measured product"
+    },
+    {
+      "key": "brick",
+      "label": "Brick",
+      "model": "bulk",
+      "bounds_m": [
+        0,
+        0.12,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "relative_permittivity": 3.91,
+      "conductivity_s_per_m": 0.0238,
+      "conductivity_frequency_exponent": 0.16,
+      "source": "ITU-R P.2040-4 (2025), Table 3, evaluated at 1 GHz",
+      "description": "120 mm equal-thickness reference slab; material-class example, not a measured product"
+    },
+    {
+      "key": "concrete",
+      "label": "Concrete",
+      "model": "bulk",
+      "bounds_m": [
+        0,
+        0.12,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "relative_permittivity": 5.24,
+      "conductivity_s_per_m": 0.0462,
+      "conductivity_frequency_exponent": 0.7822,
+      "source": "ITU-R P.2040-4 (2025), Table 3, evaluated at 1 GHz",
+      "description": "120 mm equal-thickness reference slab; material-class example, not a measured product"
+    },
+    {
+      "key": "layered_glass",
+      "label": "Glass / air / glass",
+      "model": "layered",
+      "bounds_m": [
+        0,
+        0.12,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "relative_permittivity": 6.31,
+      "conductivity_s_per_m": 0.0036,
+      "layers_m": [
+        [
+          0,
+          0.02
+        ],
+        [
+          0.1,
+          0.12
+        ]
+      ],
+      "source": "Glass coefficients: ITU-R P.2040-4 Table 3; stack geometry is illustrative",
+      "description": "Two 20 mm glass panes with an 80 mm air gap; not the same glass volume as the solid slab"
+    },
+    {
+      "key": "sheet",
+      "label": "Resistive conducting sheet",
+      "model": "sheet",
+      "bounds_m": [
+        0.06,
+        0.06,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "conductivity_s_per_m": 10000,
+      "thickness_m": 0.0001,
+      "sheet_resistance_ohm_per_square": 1,
+      "source": "Synthetic thin-sheet parameters using openEMS AddConductingSheet",
+      "description": "Zero-thickness simulation surface representing a 100 micrometre resistive film; not a 120 mm slab"
+    },
+    {
+      "key": "metal",
+      "label": "Perfect metal (PEC)",
+      "model": "pec",
+      "bounds_m": [
+        0,
+        0.12,
+        -0.5,
+        0.5,
+        -0.3,
+        0.3
+      ],
+      "source": "openEMS AddMetal",
+      "description": "Ideal opaque conductor, not finite-conductivity steel or copper"
+    }
+  ],
+  "receivers": [
+    {
+      "name": "Before slab",
+      "xyz_m": [
+        -0.30000001192092896,
+        0.0,
+        0
+      ],
+      "field_v_per_m": [
+        3.043623924255371,
+        2.9541327953338623,
+        3.332784652709961,
+        2.558394193649292,
+        2.839831590652466,
+        1.9995230436325073,
+        4.034724235534668,
+        2.004221200942993
+      ],
+      "change_vs_air_db": [
+        0.0,
+        -0.2592192590236664,
+        0.7883251309394836,
+        -1.5084707736968994,
+        -0.6019679307937622,
+        -3.649291753768921,
+        2.4484572410583496,
+        -3.6289072036743164
+      ]
+    },
+    {
+      "name": "Behind slab",
+      "xyz_m": [
+        0.6500000357627869,
+        0.0,
+        0
+      ],
+      "field_v_per_m": [
+        0.7507853507995605,
+        0.8978745341300964,
+        1.3524646759033203,
+        0.9127066731452942,
+        0.8956488370895386,
+        0.5632888078689575,
+        0.2055440992116928,
+        0.2110050469636917
+      ],
+      "change_vs_air_db": [
+        0.0,
+        1.55399751663208,
+        5.1122026443481445,
+        1.6963088512420654,
+        1.5324397087097168,
+        -2.4956932067871094,
+        -11.252216339111328,
+        -11.024459838867188
+      ]
+    },
+    {
+      "name": "Beside slab edge",
+      "xyz_m": [
+        0.6500000357627869,
+        0.550000011920929,
+        0
+      ],
+      "field_v_per_m": [
+        0.6893677115440369,
+        0.9371115565299988,
+        1.2948617935180664,
+        0.924436628818512,
+        0.868769109249115,
+        0.6426315307617188,
+        0.23931093513965607,
+        0.20384380221366882
+      ],
+      "change_vs_air_db": [
+        0.0,
+        2.666806936264038,
+        5.475449562072754,
+        2.5485243797302246,
+        2.0090689659118652,
+        -0.6097779273986816,
+        -9.189767837524414,
+        -10.58306884765625
+      ]
+    }
+  ],
+  "run_evidence": {
+    "air": {
+      "last_reported_energy_db": -76.31,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 1315 iterations with 3918901.00 cells : 40.65 sec"
+      ],
+      "termination": [
+        "[@       16s] Timestep:          528 || Speed:  125.2 MC/s (3.131e-02 s/TS) || Energy: ~1.72e-13 (- 0.00dB)",
+        "[@       20s] Timestep:          660 || Speed:  125.0 MC/s (3.136e-02 s/TS) || Energy: ~1.47e-13 (- 0.69dB)",
+        "[@       24s] Timestep:          792 || Speed:  127.0 MC/s (3.085e-02 s/TS) || Energy: ~4.04e-14 (- 6.30dB)",
+        "[@       28s] Timestep:          924 || Speed:  125.6 MC/s (3.119e-02 s/TS) || Energy: ~5.32e-15 (-15.10dB)",
+        "[@       32s] Timestep:         1055 || Speed:  126.5 MC/s (3.097e-02 s/TS) || Energy: ~1.39e-16 (-30.92dB)",
+        "[@       36s] Timestep:         1185 || Speed:  127.0 MC/s (3.086e-02 s/TS) || Energy: ~4.15e-19 (-56.17dB)",
+        "[@       40s] Timestep:         1315 || Speed:  126.5 MC/s (3.098e-02 s/TS) || Energy: ~4.02e-21 (-76.31dB)",
+        "THROUGH_WALL_FINISHED air 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232210847020508e-11,
+        1.284658648570346e-11
+      ]
+    },
+    "wood": {
+      "last_reported_energy_db": -72.93,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 1465 iterations with 3918901.00 cells : 44.62 sec"
+      ],
+      "termination": [
+        "[@       20s] Timestep:          650 || Speed:  124.6 MC/s (3.146e-02 s/TS) || Energy: ~1.54e-13 (- 0.07dB)",
+        "[@       24s] Timestep:          780 || Speed:  126.3 MC/s (3.102e-02 s/TS) || Energy: ~5.23e-14 (- 4.77dB)",
+        "[@       28s] Timestep:          910 || Speed:  126.5 MC/s (3.099e-02 s/TS) || Energy: ~1.06e-14 (-11.70dB)",
+        "[@       32s] Timestep:         1040 || Speed:  125.9 MC/s (3.112e-02 s/TS) || Energy: ~4.83e-16 (-25.11dB)",
+        "[@       36s] Timestep:         1170 || Speed:  126.4 MC/s (3.100e-02 s/TS) || Energy: ~4.12e-18 (-45.80dB)",
+        "[@       40s] Timestep:         1305 || Speed:  129.5 MC/s (3.025e-02 s/TS) || Energy: ~1.78e-19 (-59.44dB)",
+        "[@       44s] Timestep:         1465 || Speed:  154.4 MC/s (2.538e-02 s/TS) || Energy: ~7.98e-21 (-72.93dB)",
+        "THROUGH_WALL_FINISHED wood 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232139055770296e-11,
+        1.284617071642991e-11
+      ]
+    },
+    "glass": {
+      "last_reported_energy_db": -60.18,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 4960 iterations with 3918901.00 cells : 154.62 sec"
+      ],
+      "termination": [
+        "[@     2m10s] Timestep:         4300 || Speed:  116.6 MC/s (3.362e-02 s/TS) || Energy: ~6.19e-19 (-54.75dB)",
+        "[@     2m14s] Timestep:         4420 || Speed:  115.1 MC/s (3.405e-02 s/TS) || Energy: ~6.15e-19 (-54.77dB)",
+        "[@     2m18s] Timestep:         4532 || Speed:  108.9 MC/s (3.600e-02 s/TS) || Energy: ~2.74e-19 (-58.29dB)",
+        "[@     2m22s] Timestep:         4645 || Speed:  109.0 MC/s (3.594e-02 s/TS) || Energy: ~4.52e-19 (-56.11dB)",
+        "[@     2m26s] Timestep:         4752 || Speed:  104.1 MC/s (3.764e-02 s/TS) || Energy: ~2.97e-19 (-57.94dB)",
+        "[@     2m30s] Timestep:         4855 || Speed:   99.2 MC/s (3.950e-02 s/TS) || Energy: ~2.32e-19 (-59.01dB)",
+        "[@     2m34s] Timestep:         4960 || Speed:   98.2 MC/s (3.990e-02 s/TS) || Energy: ~1.77e-19 (-60.18dB)",
+        "THROUGH_WALL_FINISHED glass 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232363191098485e-11,
+        1.284598336725211e-11
+      ]
+    },
+    "brick": {
+      "last_reported_energy_db": -67.05,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 1555 iterations with 3918901.00 cells : 48.78 sec"
+      ],
+      "termination": [
+        "[@       24s] Timestep:          775 || Speed:  124.9 MC/s (3.138e-02 s/TS) || Energy: ~4.91e-14 (- 4.93dB)",
+        "[@       28s] Timestep:          905 || Speed:  125.9 MC/s (3.112e-02 s/TS) || Energy: ~1.12e-14 (-11.36dB)",
+        "[@       32s] Timestep:         1034 || Speed:  125.7 MC/s (3.118e-02 s/TS) || Energy: ~7.62e-16 (-23.02dB)",
+        "[@       36s] Timestep:         1165 || Speed:  125.6 MC/s (3.120e-02 s/TS) || Energy: ~2.36e-17 (-38.11dB)",
+        "[@       40s] Timestep:         1295 || Speed:  124.6 MC/s (3.146e-02 s/TS) || Energy: ~2.57e-18 (-47.75dB)",
+        "[@       44s] Timestep:         1425 || Speed:  125.9 MC/s (3.113e-02 s/TS) || Energy: ~2.09e-19 (-58.64dB)",
+        "[@       48s] Timestep:         1555 || Speed:  125.5 MC/s (3.124e-02 s/TS) || Energy: ~3.02e-20 (-67.05dB)",
+        "THROUGH_WALL_FINISHED brick 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232174485808282e-11,
+        1.284134772733876e-11
+      ]
+    },
+    "concrete": {
+      "last_reported_energy_db": -62.5,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 1395 iterations with 3918901.00 cells : 44.63 sec"
+      ],
+      "termination": [
+        "[@       20s] Timestep:          645 || Speed:  125.0 MC/s (3.135e-02 s/TS) || Energy: ~1.48e-13 (- 0.00dB)",
+        "[@       24s] Timestep:          770 || Speed:  122.0 MC/s (3.213e-02 s/TS) || Energy: ~4.27e-14 (- 5.40dB)",
+        "[@       28s] Timestep:          900 || Speed:  124.1 MC/s (3.158e-02 s/TS) || Energy: ~8.67e-15 (-12.33dB)",
+        "[@       32s] Timestep:         1030 || Speed:  125.9 MC/s (3.112e-02 s/TS) || Energy: ~7.13e-16 (-23.18dB)",
+        "[@       36s] Timestep:         1160 || Speed:  124.4 MC/s (3.151e-02 s/TS) || Energy: ~2.24e-17 (-38.21dB)",
+        "[@       40s] Timestep:         1285 || Speed:  122.3 MC/s (3.205e-02 s/TS) || Energy: ~1.10e-18 (-51.31dB)",
+        "[@       44s] Timestep:         1395 || Speed:  107.6 MC/s (3.643e-02 s/TS) || Energy: ~8.35e-20 (-62.50dB)",
+        "THROUGH_WALL_FINISHED concrete 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232304515539019e-11,
+        1.284265506156667e-11
+      ]
+    },
+    "layered_glass": {
+      "last_reported_energy_db": -60.27,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 2360 iterations with 3918901.00 cells : 85.97 sec"
+      ],
+      "termination": [
+        "[@     1m01s] Timestep:         1755 || Speed:   92.8 MC/s (4.224e-02 s/TS) || Energy: ~5.42e-18 (-45.39dB)",
+        "[@     1m05s] Timestep:         1850 || Speed:   91.4 MC/s (4.290e-02 s/TS) || Energy: ~2.70e-18 (-48.41dB)",
+        "[@     1m09s] Timestep:         1950 || Speed:   96.3 MC/s (4.071e-02 s/TS) || Energy: ~1.82e-18 (-50.14dB)",
+        "[@     1m13s] Timestep:         2050 || Speed:   96.0 MC/s (4.083e-02 s/TS) || Energy: ~1.08e-18 (-52.41dB)",
+        "[@     1m17s] Timestep:         2150 || Speed:   95.8 MC/s (4.091e-02 s/TS) || Energy: ~5.43e-19 (-55.38dB)",
+        "[@     1m21s] Timestep:         2255 || Speed:   98.2 MC/s (3.989e-02 s/TS) || Energy: ~3.10e-19 (-57.82dB)",
+        "[@     1m25s] Timestep:         2360 || Speed:  100.1 MC/s (3.915e-02 s/TS) || Energy: ~1.76e-19 (-60.27dB)",
+        "THROUGH_WALL_FINISHED layered_glass 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.231571359993533e-11,
+        1.28389980842845e-11
+      ]
+    },
+    "sheet": {
+      "last_reported_energy_db": -69.92,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 1405 iterations with 3918901.00 cells : 53.33 sec"
+      ],
+      "termination": [
+        "[@       28s] Timestep:          680 || Speed:   96.7 MC/s (4.052e-02 s/TS) || Energy: ~1.27e-13 (- 1.84dB)",
+        "[@       32s] Timestep:          785 || Speed:   98.4 MC/s (3.984e-02 s/TS) || Energy: ~4.69e-14 (- 6.18dB)",
+        "[@       36s] Timestep:          895 || Speed:  106.5 MC/s (3.679e-02 s/TS) || Energy: ~1.26e-14 (-11.89dB)",
+        "[@       41s] Timestep:         1060 || Speed:  159.9 MC/s (2.451e-02 s/TS) || Energy: ~3.33e-16 (-27.67dB)",
+        "[@       45s] Timestep:         1195 || Speed:  129.0 MC/s (3.039e-02 s/TS) || Energy: ~8.33e-18 (-43.68dB)",
+        "[@       49s] Timestep:         1298 || Speed:   98.3 MC/s (3.986e-02 s/TS) || Energy: ~4.54e-19 (-56.32dB)",
+        "[@       53s] Timestep:         1405 || Speed:  102.3 MC/s (3.832e-02 s/TS) || Energy: ~1.98e-20 (-69.92dB)",
+        "THROUGH_WALL_FINISHED sheet 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232757977105772e-11,
+        1.285243062722599e-11
+      ]
+    },
+    "metal": {
+      "last_reported_energy_db": -74.83,
+      "mesh_nodes_xyz": [
+        241,
+        161,
+        101
+      ],
+      "min_cell_m": 0.009999999999999787,
+      "max_cell_m": 0.010000000000000009,
+      "mesh_warnings": [
+        "Time for 1408 iterations with 3918901.00 cells : 32.27 sec"
+      ],
+      "termination": [
+        "[@        8s] Timestep:          210 || Speed:  101.9 MC/s (3.845e-02 s/TS) || Energy: ~7.66e-17 (- 0.00dB)",
+        "[@       12s] Timestep:          350 || Speed:  136.6 MC/s (2.868e-02 s/TS) || Energy: ~1.16e-14 (- 0.00dB)",
+        "[@       16s] Timestep:          565 || Speed:  210.4 MC/s (1.862e-02 s/TS) || Energy: ~1.86e-13 (- 0.00dB)",
+        "[@       20s] Timestep:          770 || Speed:  200.6 MC/s (1.954e-02 s/TS) || Energy: ~5.38e-14 (- 5.39dB)",
+        "[@       24s] Timestep:          980 || Speed:  201.3 MC/s (1.947e-02 s/TS) || Energy: ~1.80e-15 (-20.15dB)",
+        "[@       28s] Timestep:         1195 || Speed:  209.1 MC/s (1.875e-02 s/TS) || Energy: ~3.83e-18 (-46.86dB)",
+        "[@       32s] Timestep:         1408 || Speed:  205.5 MC/s (1.907e-02 s/TS) || Energy: ~6.12e-21 (-74.83dB)",
+        "THROUGH_WALL_FINISHED metal 10"
+      ],
+      "incident_voltage_spectrum_v_seconds": [
+        -3.232104689411685e-11,
+        1.283705917173705e-11
+      ]
+    },
+    "air_8mm": {
+      "last_reported_energy_db": -61.04,
+      "mesh_nodes_xyz": [
+        306,
+        206,
+        129
+      ],
+      "min_cell_m": 0.005,
+      "max_cell_m": 0.008000000000000007,
+      "mesh_warnings": [
+        "Time for 2409 iterations with 8131644.00 cells : 93.70 sec"
+      ],
+      "termination": [
+        "[@     1m08s] Timestep:         1837 || Speed:  216.7 MC/s (3.752e-02 s/TS) || Energy: ~6.43e-15 (-14.73dB)",
+        "[@     1m12s] Timestep:         1958 || Speed:  219.2 MC/s (3.709e-02 s/TS) || Energy: ~1.60e-15 (-20.77dB)",
+        "[@     1m17s] Timestep:         2046 || Speed:  168.1 MC/s (4.838e-02 s/TS) || Energy: ~4.55e-16 (-26.24dB)",
+        "[@     1m21s] Timestep:         2134 || Speed:  175.6 MC/s (4.631e-02 s/TS) || Energy: ~9.77e-17 (-32.91dB)",
+        "[@     1m25s] Timestep:         2222 || Speed:  170.4 MC/s (4.771e-02 s/TS) || Energy: ~1.57e-17 (-40.85dB)",
+        "[@     1m29s] Timestep:         2310 || Speed:  177.5 MC/s (4.582e-02 s/TS) || Energy: ~2.05e-18 (-49.69dB)",
+        "[@     1m33s] Timestep:         2409 || Speed:  191.9 MC/s (4.236e-02 s/TS) || Energy: ~1.50e-19 (-61.04dB)",
+        "THROUGH_WALL_FINISHED air 8"
+      ]
+    },
+    "concrete_8mm": {
+      "last_reported_energy_db": -63.88,
+      "mesh_nodes_xyz": [
+        306,
+        206,
+        129
+      ],
+      "min_cell_m": 0.005,
+      "max_cell_m": 0.008000000000000007,
+      "mesh_warnings": [
+        "Time for 2794 iterations with 8131644.00 cells : 108.42 sec"
+      ],
+      "termination": [
+        "[@     1m23s] Timestep:         2145 || Speed:  210.8 MC/s (3.857e-02 s/TS) || Energy: ~2.41e-16 (-28.95dB)",
+        "[@     1m27s] Timestep:         2250 || Speed:  209.8 MC/s (3.876e-02 s/TS) || Energy: ~5.61e-17 (-35.28dB)",
+        "[@     1m31s] Timestep:         2365 || Speed:  223.7 MC/s (3.635e-02 s/TS) || Energy: ~1.23e-17 (-41.87dB)",
+        "[@     1m35s] Timestep:         2464 || Speed:  196.3 MC/s (4.142e-02 s/TS) || Energy: ~3.59e-18 (-47.23dB)",
+        "[@     1m40s] Timestep:         2574 || Speed:  216.7 MC/s (3.752e-02 s/TS) || Energy: ~9.86e-19 (-52.84dB)",
+        "[@     1m44s] Timestep:         2684 || Speed:  211.2 MC/s (3.851e-02 s/TS) || Energy: ~2.71e-19 (-58.44dB)",
+        "[@     1m48s] Timestep:         2794 || Speed:  219.6 MC/s (3.703e-02 s/TS) || Energy: ~7.75e-20 (-63.88dB)",
+        "THROUGH_WALL_FINISHED concrete 8"
+      ]
+    }
+  },
+  "material_reference": "https://www.itu.int/dms_pubrec/itu-r/rec/p/R-REC-P.2040-4-202509-I%21%21PDF-E.pdf",
+  "material_assumptions": "P.2040-4 Table 3 class examples evaluated at 1 GHz, held constant over the pulse band; no broadband Debye/Lorentz dispersion or measured-product validation. Equal 120 mm bulk slabs; layer and thin-sheet cases have different material volumes.",
+  "grid_spacing_m": 0.01,
+  "end_criterion": 1e-06,
+  "max_timesteps": 20000,
+  "boundaries": "PML_8 on all six faces",
+  "display_reference_v_per_m": 8.95670223236084,
+  "display_reference": "Peak air-case |E| outside an 80 mm source radius; one reference for all cases",
+  "sensitivity": {
+    "performed": true,
+    "material": "concrete",
+    "coarse_max_cell_m": 0.01,
+    "fine_requested_max_cell_m": 0.008,
+    "receiver_checks": [
+      {
+        "receiver": "Before slab",
+        "fine_change_db": -0.6398215889930725,
+        "difference_db": -0.0378536581993103
+      },
+      {
+        "receiver": "Behind slab",
+        "fine_change_db": 1.5015444159507751,
+        "difference_db": -0.03089529275894165
+      },
+      {
+        "receiver": "Beside slab edge",
+        "fine_change_db": 1.9682605564594269,
+        "difference_db": -0.040808409452438354
+      }
+    ],
+    "interpretation": "Two-grid air/concrete sensitivity only; other materials have not been refined. Not full convergence or measurement validation."
+  },
+  "limitations": "Total field includes transmission, reflection and finite-edge diffraction. Receiver change versus air is not isolated material penetration loss or calibrated received dBm. A horizontal z=0 slice of a 3D simulation; not a complete room or city simulation.",
+  "generator_sha256": {
+    "material_lab.m": "3d9cc324241285e9aa24bd6e8af746ee9f6f68c39fb4f2aa2cb09844a0e0268b",
+    "export_material_lab.py": "06f76c1e19fe5390ebdece620f47b161aca53936ad4aa7e27254e9d2186cb6d1",
+    "materials.py": "28913c52ec1ffbd33b8f2ef5701b577f6191eb80b613b950a40a249b37d90fc4"
+  },
+  "raw_sha256": {
+    "air_10mm.log": "54693014305f87d9be6404dabd308c8e696b68e572d53fbaf9dc7b436d6c073c",
+    "air_10mm_electric.h5": "0a2b7917e38363ee6fba5911d95115fb058caf53abe231ff253d6949b0b37ff9",
+    "air_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "air_10mm_geometry.xml": "3751e30598ec7397660ca335b2c1fac1decc9a9b752dfe53833c753e5f934977",
+    "air_10mm_port.csv": "951fa412c07618679b02a834c886b7f748ce55040b7ad986868ffd7682ff2b9d",
+    "air_8mm.log": "d6003f598f9986f83a707d712d78093455b133fbe0defd1e60cbbe1fb1cae06f",
+    "air_8mm_electric.h5": "a73acc1636a7558ca605b65b16e2dd901b7c98eb05ae13641b035bc9d1d5d313",
+    "air_8mm_et": "a74b853133aa4b3ec0c1c61daf5a724c4e5efc8609df8678d6e64ba03645f7e0",
+    "air_8mm_geometry.xml": "4094063887ac6823c5f3ea0a1c7293a1ed9737ca036c9dd3c0b726a579f342e2",
+    "air_8mm_port.csv": "0376bf0af1000643b032cb43fee5a3f4e13d9e4fc6420af554ac3b2ef1b021a8",
+    "brick_10mm.log": "0e5e4de65e813e19ca581a39f006fb11a6f69741d4dfa58bf524d743f4d1a167",
+    "brick_10mm_electric.h5": "a921782b2579ae1058d722dbb1049f47e21ad2299291bf5d9daaa29f9143431e",
+    "brick_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "brick_10mm_geometry.xml": "80b26adfc385e1cac7c80be7804999ada62c1f7e5e4f956f39839c4fe29828b2",
+    "brick_10mm_port.csv": "8ca1ac6498bb43170a1c28e59b5501daa663c9b95e5977e703b7aa139f8b32ce",
+    "concrete_10mm.log": "64ba53683031a2d416ce997c43ff684a0f35fc660bd016a882541e7aa842911a",
+    "concrete_10mm_electric.h5": "248b598b4d7c24b367cc7d61422492743bcbdaf26ad548bddf29f79d220c9539",
+    "concrete_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "concrete_10mm_geometry.xml": "18fa1870e44e351ef131bbc000531f069011e71e673474838368f25f80e22957",
+    "concrete_10mm_port.csv": "1b704ce207f8822dbf397935a4eed3649a1d9d6348e783c202507fb1c479fa04",
+    "concrete_8mm.log": "b6b1b38787b6d08d4556b50e8fb48141fea410ef3fba3f75a8bdc20eea0b3482",
+    "concrete_8mm_electric.h5": "26dc1ddf369ff91e39e5b29f57acb4ada945647941198f7b415e7cedceadcfe7",
+    "concrete_8mm_et": "a74b853133aa4b3ec0c1c61daf5a724c4e5efc8609df8678d6e64ba03645f7e0",
+    "concrete_8mm_geometry.xml": "156454a17f836ceee2a08be60f1f9b231dffee16a9891ee77b8fc4a8901d3713",
+    "concrete_8mm_port.csv": "2fe5067d8395a7ddb312ffab09cb96665e981ad22e06bee4e9e5d4f9e95b033c",
+    "glass_10mm.log": "451a4aa13e1b99dabc59470c2e6f2adbc8a1159bb7f0d89927e5ecd8beba34a7",
+    "glass_10mm_electric.h5": "6033d16d12cfe87d161575d87dd9260137aaca4f5a37d21057a07f5efa260547",
+    "glass_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "glass_10mm_geometry.xml": "af25f2ae4ae95e1cabe71327bb0dad4d0a4526190c83107d7482c854688c7264",
+    "glass_10mm_port.csv": "a5071dcd5515c7c0dd0cdbae985f9dc05c45cf063b6110607ff773b2a45ada41",
+    "layered_glass_10mm.log": "9946bfce3446c76af05675ed3504bd0df387ddd33135b7c679706baa3bbf4e92",
+    "layered_glass_10mm_electric.h5": "5b66ed24682b02237cf679a81cfd05fb1bad3820d5c9922dec7d983b886dddc9",
+    "layered_glass_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "layered_glass_10mm_geometry.xml": "a2222e2aa2fffd1096850d61e5db6c64154ef110e8ae78981a9096ba77bc51dc",
+    "layered_glass_10mm_port.csv": "9d2a2fe356fcf6385fb942a8187a57608ab88a1b0f76777d59c0472f63ae6d90",
+    "metal_10mm.log": "e99f5fad08753ade975fa6ea63de33e41a1cd7178bcd3e8082b286056144c4ae",
+    "metal_10mm_electric.h5": "501885d470c6fecec5f09d51171d33001450c374d02cc1490c75e1c33da18f34",
+    "metal_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "metal_10mm_geometry.xml": "9533bbaa31461b2fe938e1a92eddc19c1efbc3abfe6b148d57e1f99228c0281f",
+    "metal_10mm_port.csv": "68f9fbe4be076cb9e8bddff9a9182a134cba34c17bd9f1faad9b93ca2f35a686",
+    "sheet_10mm.log": "297b56e9d966c536454a9052fc1ded7dd968a5598ef04aac5f94381d14066b29",
+    "sheet_10mm_electric.h5": "6b00bdfd1b3c79aa3cb98175c466e41f474f8e4743dbd3b5f521828bf171e17d",
+    "sheet_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "sheet_10mm_geometry.xml": "59876f320871b0ccae5a0533fd587fb1f08d72171de48579b337137113679828",
+    "sheet_10mm_port.csv": "e8fda778f0c957f39c879483ed521640ef11d3e87f07e5b1ce9799c9758b2b61",
+    "wood_10mm.log": "e1fe6f3ed900671ec043bed201f620c09c486fe660d1634b9ae754ab0e206570",
+    "wood_10mm_electric.h5": "9f10a6da19019697fe5815f24757e5d77b2307c7507152b1aba48a2936b5f560",
+    "wood_10mm_et": "1c2e485d1dc1c637f2adc7133a07bb2ebd454b38902230e8d21a0efe2673c6d6",
+    "wood_10mm_geometry.xml": "d6d1b73059bbb2832f58de548f71867fad55cf160e26110bb59095ff30d69919",
+    "wood_10mm_port.csv": "6ad2a3d0da02ce99070f18d2fbc7ca4091ef4a0cfc0a4fba0510212dc681adaa"
+  },
+  "license": "CC0-1.0 numerical outputs"
+}

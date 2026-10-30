@@ -1,0 +1,60 @@
+CalcNF2FF: Reading nf2ff data only...
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+nf2ff: Set verbose level to 1
+nf2ff: Reading planes: nf2ff_E_xn.h5 & nf2ff_H_xn.h5
+nf2ff: Data-Size: 1x43x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_xp.h5 & nf2ff_H_xp.h5
+nf2ff: Data-Size: 1x43x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_yn.h5 & nf2ff_H_yn.h5
+nf2ff: Data-Size: 43x1x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_yp.h5 & nf2ff_H_yp.h5
+nf2ff: Data-Size: 43x1x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_zn.h5 & nf2ff_H_zn.h5
+nf2ff: Data-Size: 43x43x1
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_zp.h5 & nf2ff_H_zp.h5
+nf2ff: Data-Size: 43x43x1
+nf2ff: Analysing far-field for 1 frequencies.  
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+nf2ff: Set verbose level to 1
+nf2ff: Reading planes: nf2ff_E_xn.h5 & nf2ff_H_xn.h5
+nf2ff: Data-Size: 1x43x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_xp.h5 & nf2ff_H_xp.h5
+nf2ff: Data-Size: 1x43x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_yn.h5 & nf2ff_H_yn.h5
+nf2ff: Data-Size: 43x1x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_yp.h5 & nf2ff_H_yp.h5
+nf2ff: Data-Size: 43x1x37
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_zn.h5 & nf2ff_H_zn.h5
+nf2ff: Data-Size: 43x43x1
+nf2ff: Analysing far-field for 1 frequencies.  
+nf2ff: Reading planes: nf2ff_E_zp.h5 & nf2ff_H_zp.h5
+nf2ff: Data-Size: 43x43x1
+nf2ff: Analysing far-field for 1 frequencies.  
+ ---------------------------------------------------------------------- 
+ | nf2ff, near-field to far-field transformation for openEMS 
+ | (C) 2012-2014 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+error: ignoring const execution_exception& while preparing to exit
