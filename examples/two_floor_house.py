@@ -2,6 +2,7 @@
 
 import argparse
 from pathlib import Path
+from types import SimpleNamespace
 
 import numpy as np
 
@@ -23,6 +24,7 @@ def main():
         return
     import pyvista as pv
 
+    from pyvista_radiation._house_scene import BACKGROUND, INK, add_labels, geometry_bounds
     from pyvista_radiation.house_fields import house_slice_mesh
 
     data = load_house()
@@ -40,31 +42,42 @@ def main():
     ]
     for i, (plane, mode, title, camera) in enumerate(configurations):
         plotter.subplot(i // 2, i % 2)
-        plotter.set_background("#132d40")
+        plotter.set_background(BACKGROUND)
         mesh = house_slice_mesh(data, args.case, plane, mode=mode, frame=frame)
         geometry.append(mesh)
         plotter.add_mesh(mesh, lighting=False, scalars="Displayed field",
                          cmap="viridis" if mode == "magnitude_db" else "RdBu_r",
                          clim=(-60, 0) if mode == "magnitude_db" else (-.25, .25),
+                         opacity=1.0 if mode == "magnitude_db" else [.95, .9, .8, .5, 0, .5, .8, .9, .95],
                          show_scalar_bar=i in (1, 3),
-                         scalar_bar_args=dict(color="white", title=("Steady |E| / air reference (dB)" if mode == "magnitude_db"
+                         scalar_bar_args=dict(color=INK, title=("Steady |E| / air reference (dB)" if mode == "magnitude_db"
                                                      else "Recorded Ey / air pulse reference"),
                                               title_font_size=11, label_font_size=9,
                                               position_y=.035, height=.07))
+        view = "house" if camera == "house" else plane
         for box in definition["boxes"]:
-            if box["role"] in ("front", "back", "roof"):
+            bounds = geometry_bounds(box, view, {k: p.fixed_m for k, p in data.planes.items()})
+            if bounds is None:
                 continue
-            geometry.append(pv.Box(bounds=box["bounds_m"]))
-            color = "#d2b47b" if box["material"] == "timber" else "#9bb1c4"
-            plotter.add_mesh(geometry[-1], color=color, opacity=.08, show_edges=True,
-                             edge_color=color, line_width=1.2)
-        geometry.append(pv.Sphere(radius=.055, center=recipe["source_xyz_m"]))
-        plotter.add_mesh(geometry[-1], color="#ffc857")
+            geometry.append(pv.Box(bounds=bounds))
+            color = "#bc9361" if box["material"] == "timber" else ("#b5c5cf" if view == "house" else "#526e7f")
+            plotter.add_mesh(geometry[-1], color=color, show_edges=True,
+                             edge_color=INK, line_width=1, lighting=view == "house")
+        scene = SimpleNamespace(data=data, geometry=geometry, plotter=plotter)
+        add_labels(scene)
+        label_view = "vertical" if view == "house" else view
+        for actor, label_plane, case in scene.label_actors:
+            actor.SetVisibility(label_plane == label_view and (case is None or case == args.case))
+        if plane == "vertical" or np.isclose(data.planes[plane].fixed_m, recipe["source_xyz_m"][2]):
+            geometry.append(pv.Sphere(radius=.08, center=recipe["source_xyz_m"]))
+            plotter.add_mesh(geometry[-1], color="#d99a10")
         for receiver in recipe["receiver_xyz_m"]:
-            geometry.append(pv.Sphere(radius=.045, center=receiver))
-            plotter.add_mesh(geometry[-1], color="#67d3e5")
-        plotter.add_text(title, position=(20, 680), color="white", font_size=14)
-        plotter.add_text(definition["label"], position=(20, 645), color="white", font_size=10)
+            if plane != "vertical" and not np.isclose(data.planes[plane].fixed_m, receiver[2]):
+                continue
+            geometry.append(pv.Sphere(radius=.065, center=receiver))
+            plotter.add_mesh(geometry[-1], color="#007d99")
+        plotter.add_text(title, position=(20, 680), color=INK, font_size=14)
+        plotter.add_text(definition["label"], position=(20, 645), color=INK, font_size=10)
         if camera == "house":
             plotter.camera_position = [(7, -8, 6.45), (0, 0, 2.7), (0, 0, 1)]
             scale = 4.1
@@ -77,7 +90,7 @@ def main():
             scale = 2.7
         plotter.enable_parallel_projection()
         plotter.camera.parallel_scale = scale
-        plotter.add_axes(color="white")
+        plotter.add_axes(color=INK)
     if args.screenshot:
         args.screenshot.parent.mkdir(parents=True, exist_ok=True)
         plotter.screenshot(args.screenshot)

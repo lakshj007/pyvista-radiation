@@ -16,9 +16,18 @@ Run the example
    python examples/two_floor_house.py             # native four-panel view
    python examples/two_floor_house.py --time-ns 24 --screenshot preview/house.png
 
-The browser offers a vertical section, a rotatable 3D cutaway, zoom controls,
-case selection, and steady field slices at receiver heights on either floor.
-Hiding the exterior is a display operation: all walls remain in the calculation.
+The browser starts with a labeled **Front cutaway**. Solid wall sections and tan
+timber slabs make the two levels and floor opening visible. **3D cutaway** shows
+the rear half of the structure with its front and roof removed. **Downstairs plan**
+and **Upstairs plan** switch directly to steady field slices with wall sections at
+the selected height. Only receiver markers on that floor are shown in plan views.
+
+**Show signal** hides the field slice so the building can be inspected on its own;
+**Show labels** controls annotations. TX is the transmitter, A the downstairs
+receiver, B the receiver directly above TX and C the upstairs receiver by the
+opening. Weak pulse/phase fields blend into the background using display opacity;
+raw values remain unchanged. Magnitude views use opaque colors. Cutaway geometry
+and exterior visibility are display operations: all walls remain in the calculation.
 The stairwell is an air opening, without modeled stairs.
 
 Recorded pulse versus steady wave

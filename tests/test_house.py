@@ -189,3 +189,54 @@ def test_house_playback_can_pause_before_completion(house):
         asyncio.run(exercise())
     finally:
         viewer.close()
+
+
+def test_display_sections_retain_opening_without_changing_solver_geometry(house):
+    from pyvista_radiation._house_scene import geometry_bounds
+
+    recipe = house.metadata["recipe"]
+    original = json.dumps(recipe, sort_keys=True)
+    heights = {k: p.fixed_m for k, p in house.planes.items()}
+    for case in recipe["cases"][:2]:
+        middle = [b for b in case["boxes"] if b["role"] == "floor" and b["bounds_m"][4] == 2.2]
+        for view in ("vertical", "house"):
+            bounds = [geometry_bounds(b, view, heights) for b in middle]
+            y = .25 if view == "house" else 0
+            covered = any(b is not None and b[0] < .8 < b[1] and b[2] < y < b[3] for b in bounds)
+            assert covered == (case["key"] == "closed")
+    for box in recipe["cases"][0]["boxes"]:
+        b = geometry_bounds(box, "upstairs", heights)
+        if b is not None:
+            assert box["bounds_m"][4] <= 3.2 <= box["bounds_m"][5]
+    assert json.dumps(recipe, sort_keys=True) == original
+
+
+def test_house_only_and_plan_shortcuts_preserve_fields_and_return_to_front(house):
+    pytest.importorskip("pyvista")
+    pytest.importorskip("trame")
+    from pyvista_radiation.house_view import create_house_app
+
+    server, viewer = create_house_app(house, server_name="test-house-views")
+    try:
+        server.state.ready()
+        original = viewer.meshes["pulse"]["Recorded Ey (V/m)"].copy()
+        with server.state:
+            server.state.house_signal = False
+            server.state.house_labels = False
+        assert not any(a.GetVisibility() for a in viewer.field_actors.values())
+        assert not any(a.GetVisibility() for a, _, _ in viewer.label_actors)
+        np.testing.assert_array_equal(viewer.meshes["pulse"]["Recorded Ey (V/m)"], original)
+        server.controller.house_upstairs()
+        assert viewer.plane == "upstairs"
+        assert viewer.mode == "magnitude_db"
+        assert all(bool(a.GetVisibility()) == bool(np.isclose(z, 3.2)) for a, z in viewer.marker_actors)
+        with server.state:
+            server.state.house_signal = True
+            server.state.house_labels = True
+        server.controller.house_front()
+        assert viewer.plane == "vertical" and viewer.preset == "section"
+        assert all(a.GetVisibility() for a, _ in viewer.marker_actors)
+        for actor, _ in viewer.case_actors["open"]:
+            assert bool(actor.GetVisibility()) == (viewer.actor_views[id(actor)] == "vertical")
+    finally:
+        viewer.close()
