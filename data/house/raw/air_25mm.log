@@ -1,0 +1,39 @@
+args = "geometry.xml" --numThreads=4
+ ---------------------------------------------------------------------- 
+ | openEMS 64bit -- version v0.0.35
+ | (C) 2010-2018 Thorsten Liebig <thorsten.liebig@gmx.de>  GPL license
+ ---------------------------------------------------------------------- 
+	Used external libraries:
+		CSXCAD -- Version: v0.6.2
+		hdf5   -- Version: 1.10.8
+		          compiled against: HDF5 library version: 1.10.8
+		tinyxml -- compiled against: 2.6.2
+		fparser
+		boost  -- compiled against: 1_74
+		vtk -- Version: 9.1.0
+		       compiled against: 9.1.0
+
+openEMS - fixed number of threads: 4
+Warning: No primitives found in property: partition!
+Warning: No primitives found in property: timber!
+
+Create FDTD operator (compressed SSE + multi-threading)
+FDTD simulation size: 209x169x225 --> 7.94722e+06 FDTD cells 
+FDTD timestep is: 4.81458e-11 s; Nyquist rate: 17 timesteps @6.10889e+08 Hz
+Excitation signal length is: 596 timesteps (2.86949e-08s)
+Max. number of timesteps: 16000 ( --> 26.8456 * Excitation signal length)
+Create FDTD engine (compressed SSE + multi-threading)
+Running FDTD engine... this may take a while... grab a cup of coffee?!?
+Warning: No primitives found in property: partition!
+Warning: No primitives found in property: timber!
+[@        4s] Timestep:          144 || Speed:  282.9 MC/s (2.809e-02 s/TS) || Energy: ~8.25e-16 (- 0.00dB)
+[@        8s] Timestep:          288 || Speed:  280.9 MC/s (2.830e-02 s/TS) || Energy: ~4.24e-13 (- 0.00dB)
+[@       12s] Timestep:          424 || Speed:  268.8 MC/s (2.956e-02 s/TS) || Energy: ~7.40e-13 (- 0.00dB)
+[@       16s] Timestep:          568 || Speed:  277.5 MC/s (2.864e-02 s/TS) || Energy: ~2.59e-13 (- 4.56dB)
+[@       20s] Timestep:          712 || Speed:  282.3 MC/s (2.815e-02 s/TS) || Energy: ~1.26e-14 (-17.68dB)
+[@       24s] Timestep:          848 || Speed:  266.7 MC/s (2.980e-02 s/TS) || Energy: ~1.15e-17 (-48.08dB)
+[@       28s] Timestep:          992 || Speed:  278.2 MC/s (2.857e-02 s/TS) || Energy: ~1.29e-20 (-77.58dB)
+Time for 992 iterations with 7947225.00 cells : 28.49 sec
+Speed: 276.70 MCells/s 
+THROUGH_WALL_FINISHED air 25
+error: ignoring const execution_exception& while preparing to exit

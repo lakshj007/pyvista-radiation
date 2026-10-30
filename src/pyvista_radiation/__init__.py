@@ -1,6 +1,14 @@
 """A PyVista extension for loading, visualizing and analyzing antenna far fields."""
 
 from .environments import synthetic_environment
+from .house_fields import (
+    CartesianPlane,
+    HouseFields,
+    house_slice_mesh,
+    load_house,
+    load_house_fields,
+    save_house_fields,
+)
 from .mesh import difference_mesh, radiation_mesh
 from .metrics import beamwidth, half_power_beamwidth, pattern_difference
 from .model import RadiationData, load, save
@@ -28,6 +36,12 @@ from .terrain import (
 
 __version__ = "0.2.0"
 __all__ = [
+    "CartesianPlane",
+    "HouseFields",
+    "house_slice_mesh",
+    "load_house",
+    "load_house_fields",
+    "save_house_fields",
     "from_arrays",
     "load_csv",
     "Building",

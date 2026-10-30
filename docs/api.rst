@@ -89,3 +89,17 @@ Terrain and coverage
 .. autofunction:: pyvista_radiation.terrain.path_profile
 .. autofunction:: pyvista_radiation.terrain.free_space_loss
 .. autofunction:: pyvista_radiation.terrain.knife_edge_loss
+
+Two-floor field recordings
+--------------------------
+
+.. autoclass:: pyvista_radiation.CartesianPlane
+   :members:
+
+.. autoclass:: pyvista_radiation.HouseFields
+   :members:
+
+.. autofunction:: pyvista_radiation.load_house
+.. autofunction:: pyvista_radiation.load_house_fields
+.. autofunction:: pyvista_radiation.save_house_fields
+.. autofunction:: pyvista_radiation.house_slice_mesh

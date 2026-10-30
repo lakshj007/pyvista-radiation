@@ -62,6 +62,23 @@ See [importing fields](docs/importing.rst) and the [data contract](docs/data-con
 
 ## Examples and optional browser demo
 
+The **two-floor wave house** shows actual openEMS time samples on a vertical cut,
+plus steady field slices downstairs and upstairs. Compare an open stairwell,
+a filled middle floor, and air. The browser can replay the recorded pulse or
+rotate a PyVista cutaway:
+
+```sh
+python examples/two_floor_house.py --browser  # http://127.0.0.1:8769
+python examples/two_floor_house.py            # native four-panel PyVista view
+```
+
+This compact 4 × 3 m model uses 500 MHz, assumed partitions and wood-class slabs.
+It includes 3D transmission, reflection and interference, with no house-specific
+mesh convergence or measurement validation. Pulse playback uses saved timestamps;
+steady wave phase is a separate reconstruction. See [the house example](docs/house.rst).
+
+![Recorded pulse and floor fields in native PyVista](preview/two_floor_house.png)
+
 The larger **material wave lab** expands the actual openEMS domain to
 2.4 × 1.6 × 1 m (20 times the original volume) at 1 GHz. Compare wood, glass,
 brick, concrete, a glass/air/glass stack, a thin resistive sheet, PEC, and air.

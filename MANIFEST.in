@@ -3,9 +3,10 @@ recursive-include docs *.rst *.md *.py *.png
 prune docs/_build
 recursive-include examples *.py *.ipynb
 recursive-include tests *.py
-recursive-include data *.npz *.json *.h5 *.xml *.csv *.log *.md LICENSE
+recursive-include data *.npz *.json *.h5 *.gz *.xml *.csv *.log *.md LICENSE
 recursive-include data/through_wall/raw *_et
 recursive-include data/material_lab/raw *_et
+recursive-include data/house/raw *_et
 recursive-include simulations *.m *.py *.md *.txt Dockerfile
 prune simulations/work
 recursive-include preview *.png *.json *.vtp

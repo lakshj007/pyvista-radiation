@@ -24,6 +24,7 @@ your existing ``pyvista.Plotter``; the browser dashboard is an optional demo.
    terrain
    nearfield
    material-lab
+   house
 
 The :download:`version 1 NPZ contract <data-contract.md>` documents physical
 units, array ordering, angular conventions, provenance, and validation rules.
