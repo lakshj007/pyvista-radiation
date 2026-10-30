@@ -1,0 +1,33 @@
+{
+  "title": "Recorded openEMS pulse through a two-floor house",
+  "case": "open",
+  "license": "CC0-1.0",
+  "source_archive": "src/pyvista_radiation/data/two_floor_house.npz",
+  "source_sha256": "cc3f966a4d8b1d69b1019155571dab1be70b8a33b9d85944888b8035d4719ab1",
+  "source_raw_hdf5_sha256": "17197f39e160cfd536297940e49847a29dde9f92038a90439b97a91ab34ecd84",
+  "exporter_sha256": "835106324e6386b356a5c48c6aeaa95d91a0ddfa1983c20439a73766fb6f5fc2",
+  "derivation": "Every second x and z sample of the recorded vertical Ey cut. All 143 original timestamps retained, with unchanged float32 fields. No temporal thinning, interpolation, quantization or recalculation.",
+  "field_order": "point,time; point ordering is StructuredGrid/Fortran order",
+  "original_shape_time_z_x": [
+    143,
+    99,
+    93
+  ],
+  "display_shape_time_z_x": [
+    143,
+    50,
+    47
+  ],
+  "coordinate_unit": "m",
+  "field_unit": "V/m",
+  "time_unit": "s",
+  "normalization": "Unchanged recorded Ey(t) in V/m for the common unit Gaussian lumped-port drive; no division by a single-frequency spectrum. No temporal interpolation, padding or phase reconstruction.",
+  "reference_description": "Shared air reference outside a 0.2 m source radius; FD and TD use separate physical normalizations and references.",
+  "limitations": "Compact schematic two-level structure; homogeneous isotropic partitions and timber slabs, no glazing, furniture, reinforcement or measured construction. A floor opening represents a stairwell void; no stairs are modeled. 500 MHz, not a Wi-Fi band. Only recorded slices are available. The 25 mm grid has not undergone a house-specific mesh convergence study; energy decay is not convergence validation. Ey is tangential to the inter-floor slab; normal field components at dielectric interfaces are affected by node interpolation. No claim of deployment or hardware accuracy.",
+  "files_sha256": {
+    "house_pulse/house_pulse_0.vts": "e5abcb819ff233f179144ba4d311de94ba3b4217ce47bfe45e59e661cd35416b",
+    "house_pulse/house_pulse_1.vtu": "6c9c5a51356d3896adce9874d74e7cc4b63f4840fa4546f5b7a8584b417a7f7b",
+    "house_pulse/house_pulse_2.vtp": "c624d3c22158dfdd2b45631063cfce53b2cd94864dbf2b351af991f1905dfe38",
+    "house_pulse.vtm": "eed36c02ed8935096feb94dde84cf897ae0ae4e060924a870f281ae7cce8b866"
+  }
+}

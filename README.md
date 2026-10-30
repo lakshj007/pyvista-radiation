@@ -60,6 +60,23 @@ conflicting duplicate samples. Vendor-specific solver exports must be mapped to
 the declared convention; the package does not guess gain, calibration or phase.
 See [importing fields](docs/importing.rst) and the [data contract](docs/data-contract.md).
 
+## Standalone PyVista showcase
+
+The [review example](examples/house_showcase/README.rst) is a focused native
+PyVista script with a 1.5 MB VTK dataset. It loads actual openEMS pulse recordings,
+clips the building, slices the walls and updates a shared field mesh with a time
+slider. It needs only PyVista and NumPy, without installing this extension or a
+solver. All 143 timestamps are preserved; spatial sampling is reduced for display.
+
+```sh
+python examples/house_showcase/plot_house_pulse.py
+```
+
+![Standalone recorded-pulse example](preview/house_showcase.png)
+
+See the [review guide](docs/showcase.rst) and the
+[draft upstream proposal](docs/upstream-proposal.md).
+
 ## Examples and optional browser demo
 
 The **two-floor wave house** shows actual openEMS time samples on a vertical cut,

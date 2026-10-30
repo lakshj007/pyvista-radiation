@@ -14,6 +14,9 @@ your existing ``pyvista.Plotter``; the browser dashboard is an optional demo.
    extension
    importing
    examples
+   showcase
+   release-readiness
+   auto_examples/index
    validation
    api
 

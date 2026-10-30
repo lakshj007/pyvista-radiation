@@ -6,6 +6,14 @@ or ``python examples/user_arrays.py`` for analytic NumPy input. Both need only
 the ``plot`` extra. See :doc:`extension` for the plotter component, standard
 filters and mesh export, and :doc:`importing` for solver-independent adapters.
 
+Standalone review example
+-------------------------
+
+:doc:`showcase` introduces a compact openEMS pulse dataset and a short native
+PyVista script. It runs independently of this extension and demonstrates standard
+VTK loading, clipping, slicing and a time slider. See the executed
+:doc:`auto_examples/plot_house_pulse` gallery page.
+
 Create meshes
 -------------
 
